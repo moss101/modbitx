@@ -81,14 +81,30 @@ const expect = (name, cond, detail) => {
   expect("composer input is 15px", input >= 14.5 && input <= 15.5, metrics.composerFont);
 
   await page.evaluate(() => { document.documentElement.dataset.density = "compact"; });
-  await page.waitForTimeout(300);
-  const compact = await page.evaluate(() => {
-    const cs = (sel, prop) => { const el = document.querySelector(sel); return el ? String(getComputedStyle(el)[prop]) : ""; };
-    return { sidebar: cs(".sidebar", "width"), composer: cs(".composer", "border-radius") };
-  });
+  // The sidebar width animates to its compact value; wait for it to settle
+  // rather than trusting a fixed timeout on a slow machine.
+  const compact = await page.waitForFunction(
+    () => {
+      const sidebar = document.querySelector(".sidebar");
+      const composer = document.querySelector(".composer");
+      if (!sidebar || !composer) return null;
+      const width = getComputedStyle(sidebar).width;
+      const radius = getComputedStyle(composer).borderRadius;
+      return width === "248px" && radius === "12px" ? { width, radius } : null;
+    },
+    null,
+    { timeout: 4000, polling: 100 }
+  ).then((handle) => handle.jsonValue()).catch(() => page.evaluate(() => {
+    const sidebar = document.querySelector(".sidebar");
+    const composer = document.querySelector(".composer");
+    return {
+      width: sidebar ? getComputedStyle(sidebar).width : "",
+      radius: composer ? getComputedStyle(composer).borderRadius : ""
+    };
+  }));
   await page.evaluate(() => { document.documentElement.dataset.density = "comfortable"; });
-  expect("compact narrows the sidebar to 248px", compact.sidebar === "248px", compact.sidebar);
-  expect("compact softens the composer to 12px", compact.composer === "12px", compact.composer);
+  expect("compact narrows the sidebar to 248px", compact.width === "248px", compact.width);
+  expect("compact softens the composer to 12px", compact.radius === "12px", compact.radius);
 
   await browser.close();
   if (failures.length) {
