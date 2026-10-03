@@ -70,6 +70,7 @@ function startStub() {
       try { parsed = JSON.parse(body || "{}"); } catch { /* scripted reply anyway */ }
       const messages = Array.isArray(parsed.messages) ? parsed.messages : [];
       const toolResult = messages.filter((message) => message.role === "tool").pop();
+      console.error(`[stub] ${request.method} ${request.url} msgs=${messages.length} tools=${Array.isArray(parsed.tools) ? parsed.tools.length : 0} toolResult=${Boolean(toolResult)}`);
       const events = [];
       if (toolResult) {
         stub.toolResult = String(toolResult.content || "");
