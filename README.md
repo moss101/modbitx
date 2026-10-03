@@ -29,6 +29,8 @@ One honest negative: a seatbelt write-clamp for commands (`sandbox-exec`) was pr
 
 ## Verification
 
+CI runs both tiers on every push (`.github/workflows/checks.yml`): a fast static job (typecheck, build, parity/audit/local-jobs/plan-mode) and a macOS job that drives the real app over CDP — design tokens, surfaces, launch, no-stubs, p0 (scripted provider on its own instance), and the port-clash pair. The only mode CI cannot run is `no-stubs turn`, which needs a real model provider key.
+
 The full check suite runs green here (Playwright is a devDependency; the app is driven over CDP): `no-stubs-check` send/share/document/mcp/browser/computer/cowork/handoff, `p0-check` find/questions, `surfaces-check` (94 assertions over every mapped surface), `launch-check`, `port-clash-check`, plus the static `parity-check`/`parity-negative`/`audit-check`/`local-jobs-check`/`plan-mode-check`. Two modes stay environment-blocked, not app-blocked: `no-stubs turn` needs a real provider key, and `p0 terminal` needs pty allocation this harness denies (`posix_spawnp failed`) — both pass on a normal machine.
 
 The design tokens are asserted live too, not just written: a CDP probe reads computed styles against the CDS values — page `#fcfcfb`/`#151515`, sidebar 288px with a 0.5px hairline, body 13.2px, Newsreader hero at 400, 32px gutters, composer 14px radius with a 48px two-line minimum and 15px input, 8px segments at 30px, 20.7px titles, three theme previews, and compact density retuning (248px sidebar, 12px composer, 6px segments). That probe caught and fixed a real bug: the rem-based tier tokens compounded with the 13.2px root and shrank the composer to 10.9px/11.6px before the tiers became absolute px.

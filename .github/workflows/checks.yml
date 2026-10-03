@@ -1,0 +1,89 @@
+# Two tiers, matching how the checks actually run locally:
+#
+# static — pure Node checks plus typecheck and build; runs anywhere.
+# live   — the Playwright suite drives the real Electron app over CDP, so it
+#          needs a window server; GitHub's macOS runners provide one. Two
+#          modes stay out, on purpose:
+#            no-stubs "turn" needs a real model provider key
+#            (the app refuses honestly without one — that refusal is itself
+#            covered by the "send" mode), and everything else is included.
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npx vite build
+      - run: node scripts/parity-check.cjs
+      - run: node scripts/parity-negative.cjs
+      - run: node scripts/audit-check.cjs
+      - run: node scripts/local-jobs-check.cjs
+      - run: node scripts/plan-mode-check.cjs
+
+  live:
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # No browsers to download: every check connects over CDP to the app.
+      - run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+      # node-pty must match the Electron ABI for the real TTY tests.
+      - run: npm run rebuild:pty
+      - name: static checks too (they are cheap and fast here)
+        run: |
+          node scripts/parity-check.cjs
+          node scripts/local-jobs-check.cjs
+      - name: launch the app for the CDP checks
+        run: |
+          npx vite > "$RUNNER_TEMP/vite.log" 2>&1 &
+          npx electron . --remote-debugging-port=9222 --user-data-dir="$RUNNER_TEMP/modbitx-cdp" > "$RUNNER_TEMP/app.log" 2>&1 &
+          for i in $(seq 1 40); do
+            curl -sf http://127.0.0.1:9222/json/version > /dev/null && break
+            sleep 1
+          done
+          curl -sf http://127.0.0.1:9222/json/version > /dev/null || { cat "$RUNNER_TEMP/vite.log" "$RUNNER_TEMP/app.log"; exit 1; }
+      - name: design tokens
+        run: CDP_PORT=9222 node scripts/design-check.cjs
+      - name: surfaces
+        run: CDP_PORT=9222 node scripts/surfaces-check.cjs
+      - name: launch
+        run: CDP_PORT=9222 node scripts/launch-check.cjs
+      - name: no-stubs
+        run: |
+          for mode in send share document mcp browser computer cowork handoff; do
+            CDP_PORT=9222 node scripts/no-stubs-check.cjs "$mode" || exit 1
+          done
+      - name: p0 (scripted provider rides its own app instance)
+        run: |
+          PROFILE="$RUNNER_TEMP/modbitx-p0-profile"
+          node scripts/p0-check.cjs seed "$PROFILE"
+          NODE_EXTRA_CA_CERTS="$PROFILE/ca.pem" npx electron . \
+            --remote-debugging-port=9333 --user-data-dir="$PROFILE" > "$RUNNER_TEMP/p0-app.log" 2>&1 &
+          for i in $(seq 1 40); do
+            curl -sf http://127.0.0.1:9333/json/version > /dev/null && break
+            sleep 1
+          done
+          curl -sf http://127.0.0.1:9333/json/version > /dev/null || { cat "$RUNNER_TEMP/p0-app.log"; exit 1; }
+          CDP_PORT=9333 node scripts/p0-check.cjs find || exit 1
+          CDP_PORT=9333 node scripts/p0-check.cjs terminal || exit 1
+          CDP_PORT=9333 node scripts/p0-check.cjs questions || exit 1
+      - name: port clash (spawns its own two copies)
+        run: node scripts/port-clash-check.cjs
