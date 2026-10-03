@@ -197,7 +197,22 @@ async function checkQuestions(chromium) {
   await withPage(chromium, async (page) => {
     await newThread(page, "cowork");
     await sendDraft(page, "Ask me which color");
-    await page.waitForSelector("[data-question='choice']", { timeout: 20000 });
+    let card = null;
+    try {
+      await page.waitForSelector("[data-question='choice']", { timeout: 20000 });
+      card = true;
+    } catch {
+      // Dump what the thread shows instead, so a CI-only failure is readable.
+      const dump = await page.evaluate(() => ({
+        banner: (document.querySelector(".banner")?.textContent || "").slice(0, 160),
+        approval: !!document.querySelector(".approval"),
+        kicker: document.querySelector(".kicker")?.textContent || "",
+        transcript: (document.querySelector(".transcript")?.innerText || "").slice(0, 400),
+        steps: Array.from(document.querySelectorAll(".steps li")).map((li) => li.textContent?.trim().slice(0, 60))
+      }));
+      console.error("QUESTION CARD MISSING — app state:", JSON.stringify(dump, null, 1));
+      throw new Error("choice card never rendered");
+    }
     const options = await page.evaluate(() => Array.from(document.querySelectorAll("[data-ask-option]")).map((button) => (button.textContent || "").trim()));
     shown("the choice card renders its options", options.join() === "Red,Green,Blue", options.join());
     await page.click("[data-ask-option='Green']");
