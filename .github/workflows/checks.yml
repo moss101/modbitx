@@ -82,8 +82,8 @@ jobs:
             sleep 1
           done
           curl -sf http://127.0.0.1:9333/json/version > /dev/null || { cat "$RUNNER_TEMP/p0-app.log"; exit 1; }
-          CDP_PORT=9333 node scripts/p0-check.cjs find || exit 1
-          CDP_PORT=9333 node scripts/p0-check.cjs terminal || exit 1
-          CDP_PORT=9333 node scripts/p0-check.cjs questions || exit 1
+          CDP_PORT=9333 P0_PROFILE="$PROFILE" node scripts/p0-check.cjs find || exit 1
+          CDP_PORT=9333 P0_PROFILE="$PROFILE" node scripts/p0-check.cjs terminal || exit 1
+          CDP_PORT=9333 P0_PROFILE="$PROFILE" node scripts/p0-check.cjs questions || exit 1
       - name: port clash (spawns its own two copies)
         run: node scripts/port-clash-check.cjs
