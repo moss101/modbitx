@@ -688,6 +688,9 @@ function Capabilities() {
         <Row label="Run commands in the task VM" description="vm_boot starts a disposable Alpine machine under QEMU; vm_exec runs inside it, isolated from this Mac, and vm_stop discards everything. First boot downloads the boot files.">
           <Switch label="Run commands in the task VM" checked={s.taskVm !== false} onChange={(taskVm) => patch({ taskVm })} />
         </Row>
+        <Row label="Allow dynamic workflows" description="The model can fan out subagents on one task; you approve the first fan-out in a session. Subagents answer from the model without desktop tools.">
+          <Switch label="Allow dynamic workflows" checked={s.dynamicWorkflows !== false} onChange={(dynamicWorkflows) => patch({ dynamicWorkflows })} />
+        </Row>
       </Section>
       <Section title="Workspace memory">
         <Row label="Memory for people on this Mac’s workspace" description="These notes join Chat, Cowork, and Code when this is on. Owners and admins edit them. Members can read them.">

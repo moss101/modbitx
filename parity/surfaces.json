@@ -41,12 +41,14 @@
       "Dictation",
       "Diff",
       "Dispatch",
+      "Dynamic workflows",
       "Edit sidebar",
       "Effort",
       "Execpolicy",
       "Export as",
       "Extensions",
       "Find",
+      "Fleet",
       "General",
       "GitHub",
       "Import & export",
@@ -94,6 +96,7 @@
       "Skills",
       "Slack",
       "Slides",
+      "Subagent",
       "Task VM",
       "Team",
       "Terminal",
@@ -1112,10 +1115,15 @@
       "symbol": "startBgTask",
       "how": {
         "kind": "topbar",
-        "label": "Tasks"
+        "label": "Agents"
       },
       "evidence": "scripts/no-stubs-check.cjs turn",
-      "limit": "Rows run chat-only turns with no tools while the open chat keeps working; the panel has no automated coverage."
+      "limit": "The panel (now Agents) lists running threads, subagents, side questions, and the task VM with stop controls; rows run chat-only turns with no tools, and the panel has no automated coverage.",
+      "covers": [
+        "agents panel",
+        "fleet",
+        "dynamic workflows"
+      ]
     },
     {
       "id": "dictation-hotkey",
@@ -1636,6 +1644,24 @@
       ],
       "evidence": "scripts/local-jobs-check.cjs turn",
       "limit": "Past a rough character size the older messages fold into a summary before the turn, keeping the last four; the threshold is fixed and the compaction cannot be asserted headlessly without a provider key."
+    },
+    {
+      "id": "dynamic-workflows",
+      "name": "Dynamic workflows",
+      "group": "Cowork",
+      "status": "partial",
+      "module": "src/tools.ts",
+      "symbol": "spawn_subagents",
+      "how": {
+        "kind": "settings",
+        "label": "Allow dynamic workflows"
+      },
+      "covers": [
+        "subagent",
+        "fan out"
+      ],
+      "evidence": "scripts/local-jobs-check.cjs subagent",
+      "limit": "spawn_subagents fans out up to six goals as concurrent subagents after a session-gated approval (Claude's own gate), read_subagents returns their answers; subagents are model-only workers without desktop tools, and there is no merge step beyond the model reading results."
     }
   ]
 }

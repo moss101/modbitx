@@ -472,6 +472,14 @@ shown("a query-callback permission request is rejected", permissionRequestIsOnTh
 shown("a deferred permission request is rejected", permissionRequestIsOnTheClick(requestAfterTimeout) === false);
 shown("popup asks for the open site only", permissionRequestIsOnTheClick(popup));
 
+// ---- dynamic workflows: subagent goal parsing ----
+{
+  const bt = load("bgtasks.ts");
+  must("one goal per line, bullets and numbers stripped", JSON.stringify(bt.parseSubagentGoals("- find rivals\n2. price the top three\n")) === JSON.stringify(["find rivals", "price the top three"]));
+  must("empty lines drop and six is the cap", bt.parseSubagentGoals("a\n\nb\nc\nd\ne\nf\ng").length === 6);
+  must("blank input parses to none", bt.parseSubagentGoals("   ").length === 0);
+}
+
 // ---- command rules: the approval rule engine ----
 {
   const approvals = load("approvals.ts");

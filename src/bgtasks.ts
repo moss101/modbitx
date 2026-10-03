@@ -18,6 +18,18 @@ export interface BgTask {
   error?: string;
   createdAt: number;
   finishedAt?: number;
+  /** Marks rows spawned as dynamic-workflow subagents. */
+  origin?: "subagent";
+}
+
+/** Splits a goal list into subagent prompts: one per non-empty line, capped. */
+export function parseSubagentGoals(raw: string): string[] {
+  return String(raw || "")
+    .split(/\n/)
+    .map((line) => line.replace(/^\s*(?:[-*]|\d+[.)])\s*/, "").trim())
+    .filter(Boolean)
+    .map((line) => line.slice(0, 400))
+    .slice(0, 6);
 }
 
 export function bgTaskTitle(prompt: string): string {

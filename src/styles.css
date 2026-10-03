@@ -934,6 +934,7 @@ img.avatar { object-fit: cover; padding: 0; }
 }
 .bg-tasks header { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--line); }
 .bg-tasks header strong { font-size: var(--cds-font-size-body); font-weight: var(--cds-weight-semibold); }
+.bt-threads { display: flex; flex-direction: column; gap: 2px; padding: 6px 8px; border-bottom: 1px solid var(--line); }
 .bg-task-compose { display: flex; gap: 6px; align-items: flex-end; padding: 8px; border-bottom: 1px solid var(--line); }
 .bg-task-compose textarea { flex: 1; resize: none; min-height: 44px; font-size: var(--cds-font-size-footnote); background: var(--panel); border: 1px solid var(--line); border-radius: var(--cds-radius); }
 .bg-task-compose .send { flex: none; }

@@ -69,6 +69,7 @@ export const DEFAULT_SETTINGS: Settings = {
   taskVm: true,
   commandRules: [],
   autoCompact: true,
+  dynamicWorkflows: true,
   githubToken: "",
   slackToken: "",
   linearKey: "",

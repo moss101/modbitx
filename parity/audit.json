@@ -22,7 +22,7 @@
     {
       "class": "d",
       "how": "the parity map's deferred notes and partial limits are read as recorded incompleteness",
-      "findingsNow": 53,
+      "findingsNow": 54,
       "fixedDuringThisWork": 0
     }
   ],
@@ -403,6 +403,12 @@
       "pointer": "auto-compact",
       "disposition": "deferred",
       "reason": "compaction runs only with a provider key and its threshold is a fixed character estimate, not the provider's own token count."
+    },
+    {
+      "class": "d",
+      "pointer": "dynamic-workflows",
+      "disposition": "deferred",
+      "reason": "subagents are tool-less model workers riding the background-task machinery; tool-using subagents need isolated tool environments, and no automated coverage drives the fan-out."
     }
   ],
   "order": "fixed items are records of what the scan found before the fix; findingsNow is what a fresh scan reports"

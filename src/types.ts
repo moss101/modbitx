@@ -249,6 +249,8 @@ export interface Settings {
   commandRules: CommandRule[];
   /** Long conversations fold into a summary automatically. */
   autoCompact: boolean;
+  /** The model may fan out subagents on one task (dynamic workflows). */
+  dynamicWorkflows: boolean;
   githubToken: string;
   /** Slack bot token (xoxb-…) for the Slack connector tools. */
   slackToken: string;

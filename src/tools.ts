@@ -4,6 +4,7 @@ import { interpretDesign, type DesignSystem } from "./design";
 import { actionToCall, browserOptions, controlsFromDom, decideBrowserStep, markHighRisk, MAX_BROWSER_STEPS, siteGate, valuesInGoal } from "./harness";
 import { formatAnswer, normalizeQuestion, type Question } from "./questions";
 import { verdictFor } from "./approvals";
+import { parseSubagentGoals } from "./bgtasks";
 import { runSimulator } from "./simulator";
 
 export interface ToolCall {
@@ -141,6 +142,7 @@ export function toolGuide(mode: string): string {
     "Recording never starts on its own. /record start and /record stop (or record_start and record_stop) frame the screen every 5 seconds with the frontmost app named, keeping the last 20 minutes in temp; computer_history reads that timeline. Starting a recording asks first.",
     "The task VM is a disposable Alpine machine under QEMU with hardware acceleration: vm_boot brings it up (asks once; the first boot downloads ~35MB of boot files), vm_exec runs commands inside it — isolated from this Mac, discarded on vm_stop — and vm_status reports state. Nothing on this Mac is mounted.",
     "Command rules persist in Settings → Privacy: an allow rule (word prefix, like npm or git commit) skips the approval prompt, a deny rule refuses outright, and the approval card offers Always allow for commands. No rule means the session permission mode decides.",
+    "Dynamic workflows: spawn_subagents takes one goal per line (up to six) and runs them as subagents beside this chat — the user approves the first fan-out per session; read_subagents returns each status and answer. Subagents answer from the model without desktop tools; do machine work yourself.",
     "Computer use defers to the human: click, type, key, hotkey, paste, drag, move, scroll, and focus_app are refused while Secure Input holds the keyboard or while the user typed within the last two seconds. Wait a moment and retry; screenshot and clipboard_read stay available.",
     "Connector tools (Slack, Linear) need their connector switched on in Settings → Connectors and the credentials pasted there. slack_post and slack_read take a channel ID; posting asks first. linear_search takes the text to match against issue titles.",
     "Connector tools for Jira (jira_search takes JQL, jira_comment asks first), Notion (notion_search, notion_append asks first), Figma (figma_comments takes the file key from the URL), Sentry (sentry_issues for the organization), and Stripe (stripe_balance, stripe_charges, read-only) work the same way: switch the connector on and paste its credentials in Settings → Connectors.",
@@ -224,6 +226,11 @@ export interface DesktopEnv {
   taskVm?: boolean;
   /** Persistent command approval rules from Settings. */
   commandRules?: { id: string; pattern: string; verdict: "allow" | "deny"; createdAt: number }[];
+  /** Dynamic workflows: the model may fan out subagents (session-gated). */
+  dynamicWorkflows?: boolean;
+  subagentsAllowed?: { allowed: boolean };
+  onSubagents?: (goals: string[]) => string[];
+  readSubagents?: () => { id: string; prompt: string; status: string; answer: string }[];
   onPlan?: (text: string) => void;
   onPlanStatus?: (status: "draft" | "review" | "approved") => void;
   onTodos?: (items: { id: string; title: string; status: "pending" | "doing" | "done" }[]) => void;
@@ -551,6 +558,25 @@ async function runToolInner(call: ToolCall, env: DesktopEnv): Promise<ToolResult
         await ensureEdit(env, `run ${call.command || ""}`);
         const result = await api.runCommand(folder, call.command || "");
         return { call, ok: result.code === 0, output: `$ ${call.command}\nexit ${result.code}\n${result.stdout}${result.stderr ? `\n${result.stderr}` : ""}` };
+      }
+      case "spawn_subagents": {
+        if (env.dynamicWorkflows === false) return { call, ok: false, output: "Dynamic workflows are off. Turn them on in Settings → Capabilities." };
+        if (!env.onSubagents) return { call, ok: false, output: "Subagents are unavailable in this window." };
+        const goals = parseSubagentGoals(String(call.content || call.text || ""));
+        if (!goals.length) return { call, ok: false, output: "spawn_subagents needs one goal per line in content (up to six)." };
+        if (!env.subagentsAllowed?.allowed) {
+          const answer = await env.approve({ kind: "computer", detail: `run a dynamic workflow with ${goals.length} subagent${goals.length === 1 ? "" : "s"}` });
+          if (answer === "no") return { call, ok: false, output: "The user declined the dynamic workflow. Do the work yourself instead." };
+          if (answer !== "once") env.subagentsAllowed = { allowed: true };
+        }
+        const ids = env.onSubagents(goals);
+        return { call, ok: true, output: `Spawned ${ids.length} subagent${ids.length === 1 ? "" : "s"}: ${ids.join(", ")}. They run beside this chat; read_subagents brings back what they found.` };
+      }
+      case "read_subagents": {
+        if (!env.readSubagents) return { call, ok: false, output: "Subagents are unavailable in this window." };
+        const rows = env.readSubagents();
+        if (!rows.length) return { call, ok: true, output: "No subagents have been spawned in this session." };
+        return { call, ok: true, output: rows.map((row) => `[${row.status}] ${row.prompt.slice(0, 80)}\n${row.answer ? row.answer.slice(0, 1500) : "(still working)"}`).join("\n\n").slice(0, 9000) };
       }
       case "vm_status": {
         if (env.taskVm === false) return { call, ok: false, output: "The task VM is off. Turn it on in Settings → Capabilities." };

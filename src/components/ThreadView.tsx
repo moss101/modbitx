@@ -9,6 +9,7 @@ import { activeDesign, applyDesignPick, DEFAULT_DESIGN, designsForRole, interpre
 import { runProjectHooks } from "../hooks";
 import { applyMemoryVerb, memoryPromptLines } from "../memory";
 import { projectPrompt } from "../local-jobs";
+import { startBgTask } from "../bgtasks";
 import { runResearch, researchMessage, type ResearchStep } from "../research";
 import { addRule, ruleFromAction } from "../approvals";
 import { markHighRisk } from "../harness";
@@ -88,10 +89,11 @@ export function ThreadView() {
       });
     });
   }, [activeThread, dispatch, state.settings.permissionMode]);
-  const allowRef = useState<{ hosts: Set<string>; computer: { allowed: boolean }; sim: { allowed: boolean }; wait: ((value: "once" | "task" | "always" | "no") => void) | null }>({
+  const allowRef = useState<{ hosts: Set<string>; computer: { allowed: boolean }; sim: { allowed: boolean }; subagents: { allowed: boolean }; wait: ((value: "once" | "task" | "always" | "no") => void) | null }>({
     hosts: new Set(),
     computer: { allowed: false },
     sim: { allowed: false },
+    subagents: { allowed: false },
     wait: null
   })[0];
   const [error, setError] = useState("");
@@ -385,6 +387,21 @@ export function ThreadView() {
         computerGuard: state.settings.computerGuard !== false,
         taskVm: state.settings.taskVm !== false,
         commandRules: state.settings.commandRules || [],
+        dynamicWorkflows: state.settings.dynamicWorkflows !== false,
+        subagentsAllowed: allowRef.subagents,
+        onSubagents: (goals) => goals.map((goal) => {
+          const id = `bg-${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36).slice(-4)}`;
+          const task = { id, prompt: goal, status: "running" as const, answer: "", createdAt: Date.now(), origin: "subagent" as const };
+          dispatch({ type: "bg-start", task });
+          void startBgTask(task, {
+            settings: state.settings,
+            skills: state.skills.filter((skill) => skill.enabled),
+            connectors: state.connectors,
+            memories: memoryPromptLines(state.memories)
+          }, dispatch);
+          return id;
+        }),
+        readSubagents: () => (state.bgTasks || []).filter((task) => task.origin === "subagent").map((task) => ({ id: task.id, prompt: task.prompt, status: task.status, answer: task.answer })),
         guardCheck: () => window.modbitx?.guardCheck?.() ?? Promise.resolve({ secureInput: false, sinceKey: 999, sinceMouse: 999 }),
         slackOn: state.connectors.some((connector) => connector.id === "slack" && connector.enabled),
         slackToken: state.settings.slackToken || "",
@@ -973,7 +990,7 @@ export function ThreadView() {
           <button className="ghost" onClick={() => dispatch({ type: "patch-thread", id: activeThread.id, patch: { pinned: !activeThread.pinned } })}>{activeThread.pinned ? "Unpin" : "Pin"}</button>
           <button className="ghost" onClick={() => dispatch({ type: "patch-thread", id: activeThread.id, patch: { archived: true } })}>Archive</button>
           <button className="ghost" title="Open this session in its own window" onClick={() => void window.modbitx?.popoutThread(activeThread.id)}>Pop out</button>
-          <button className="ghost" onClick={() => dispatch({ type: "bg-open", open: !state.bgOpen })}>Tasks {(state.bgTasks || []).length ? `(${state.bgTasks.length})` : ""}</button>
+          <button className="ghost" onClick={() => dispatch({ type: "bg-open", open: !state.bgOpen })}>Agents {(state.bgTasks || []).length ? `(${state.bgTasks.length})` : ""}</button>
           <button className="ghost" onClick={() => dispatch({ type: "artifact", open: !state.artifactOpen })}>Artifacts {artifacts.length ? `(${artifacts.length})` : ""}</button>
         </div>
       </header>
