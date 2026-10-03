@@ -66,7 +66,9 @@ const expect = (name, cond, detail) => {
     };
   });
   expect("sidebar is 288px", metrics.sidebar === "288px", metrics.sidebar);
-  expect("sidebar edge is a 0.5px hairline", metrics.hairline === "0.5px", metrics.hairline);
+  // The authored rule is 0.5px; a 1x (non-Retina) display rounds the computed
+  // value up to 1px, so both renderings of the same hairline pass.
+  expect("sidebar edge is a hairline", metrics.hairline === "0.5px" || metrics.hairline === "1px", metrics.hairline);
   const body = parseFloat(metrics.body);
   expect("UI body is ~13.2px", body >= 12.8 && body <= 13.6, metrics.body);
   expect("greeting weight is 400", metrics.heroWeight === "400", metrics.heroWeight);
