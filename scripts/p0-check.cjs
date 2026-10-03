@@ -217,7 +217,17 @@ async function checkQuestions(chromium) {
     const options = await page.evaluate(() => Array.from(document.querySelectorAll("[data-ask-option]")).map((button) => (button.textContent || "").trim()));
     shown("the choice card renders its options", options.join() === "Red,Green,Blue", options.join());
     await page.click("[data-ask-option='Green']");
-    await page.waitForFunction(() => (document.querySelector(".transcript")?.innerText || "").includes("Answered: recorded"), null, { timeout: 20000 });
+    try {
+      await page.waitForFunction(() => (document.querySelector(".transcript")?.innerText || "").includes("Answered: recorded"), null, { timeout: 20000 });
+    } catch {
+      const dump = await page.evaluate(() => ({
+        transcript: (document.querySelector(".transcript")?.innerText || "").slice(0, 500),
+        steps: Array.from(document.querySelectorAll(".steps li")).map((li) => li.textContent?.trim().slice(0, 60)),
+        questionStillOpen: !!document.querySelector("[data-question]")
+      }));
+      console.error("SECOND REPLY MISSING — app state:", JSON.stringify(dump, null, 1));
+      throw new Error("the second scripted reply never rendered");
+    }
     // The step's detail is collapsed until its row is opened.
     await page.evaluate(() => {
       const row = Array.from(document.querySelectorAll(".steps button")).find((b) => /ask user/i.test(b.textContent || ""));
