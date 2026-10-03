@@ -1,0 +1,44 @@
+{
+  "name": "modbitx",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Modbitx — a local-first desktop assistant for chat, cowork, and code, powered by the model provider you choose.",
+  "author": "Modbitx",
+  "main": "electron/main.cjs",
+  "type": "module",
+  "dependencies": {
+    "@vscode/ripgrep": "^1.18.0",
+    "@xterm/addon-fit": "^0.11.0",
+    "@xterm/xterm": "^6.0.0",
+    "mermaid": "^12.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.5.0",
+    "concurrently": "^9.1.2",
+    "electron": "^36.3.2",
+    "node-pty": "^1.0.0",
+    "playwright": "^1.63.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "wait-on": "^8.0.3"
+  },
+  "scripts": {
+    "dev": "concurrently -k \"vite\" \"wait-on tcp:127.0.0.1:5173 && electron .\"",
+    "dev:debug": "concurrently -k \"vite\" \"wait-on tcp:127.0.0.1:5173 && electron . --remote-debugging-port=9222\"",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "start": "electron .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "rebuild:pty": "npm rebuild node-pty --runtime=electron --target=\"$(cat node_modules/electron/dist/version)\" --dist-url=https://electronjs.org/headers",
+    "smoke:chrome": "node scripts/chrome-handoff-smoke.cjs",
+    "smoke:chrome-live": "node scripts/chrome-live-check.cjs"
+  },
+  "allowScripts": {
+    "node-pty@1.0.0": true
+  }
+}

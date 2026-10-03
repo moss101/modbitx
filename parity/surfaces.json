@@ -1,0 +1,1512 @@
+{
+  "source": {
+    "app": "Claude.app",
+    "version": "2.16120.0",
+    "bundleId": "com.anthropic.claudefordesktop",
+    "inspected": [
+      "Contents/Info.plist",
+      "Contents/Resources/app.asar (399 files)",
+      "Contents/Resources/app.asar.unpacked/resources/bundled-skills",
+      "Contents/Resources/ion-dist/i18n/en-US.json (32243 strings)"
+    ],
+    "knownSurfaces": [
+      "Accessibility",
+      "Account",
+      "Admin",
+      "Approval chime",
+      "Artifacts",
+      "Background tasks",
+      "Billing",
+      "Browser",
+      "Built-in browser",
+      "Canvas",
+      "Capabilities",
+      "Chat",
+      "Chrome",
+      "Code",
+      "comments",
+      "Compare versions",
+      "Computer history",
+      "Computer use",
+      "Connectors",
+      "Cowork",
+      "Customize",
+      "Deep Research",
+      "Density",
+      "Design systems",
+      "Developer",
+      "diagram",
+      "Dictation",
+      "Diff",
+      "Dispatch",
+      "Edit sidebar",
+      "Effort",
+      "Export as",
+      "Extensions",
+      "Find",
+      "General",
+      "GitHub",
+      "Import & export",
+      "Incognito",
+      "Keep awake",
+      "LaTeX",
+      "MCP",
+      "Memory",
+      "Mermaid",
+      "Messages",
+      "Model",
+      "Models",
+      "Notifications",
+      "Plugin packages",
+      "Plugins",
+      "Popout windows",
+      "Preferences",
+      "print",
+      "Privacy",
+      "Projects",
+      "Publish",
+      "Pull requests",
+      "Quick actions",
+      "Quote reply",
+      "Read aloud",
+      "Record and replay",
+      "Research",
+      "Rewind",
+      "ripgrep",
+      "Routines",
+      "Sandbox",
+      "Scheduled",
+      "Schedules",
+      "Scratchpad",
+      "Search",
+      "Session status filter",
+      "Sessions",
+      "Share",
+      "Shortcut guide",
+      "side by side",
+      "Sign in",
+      "Skills",
+      "Slides",
+      "Team",
+      "Terminal",
+      "This computer",
+      "Usage",
+      "Version history",
+      "Visualize",
+      "Voice",
+      "Widgets",
+      "Worktree"
+    ]
+  },
+  "surfaces": [
+    {
+      "id": "chat",
+      "name": "Chat",
+      "group": "Modes",
+      "status": "covered",
+      "module": "src/components/ThreadView.tsx",
+      "symbol": "ThreadView",
+      "how": {
+        "kind": "mode",
+        "value": "chat"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "cowork",
+      "name": "Cowork",
+      "group": "Modes",
+      "status": "covered",
+      "module": "src/components/ThreadView.tsx",
+      "symbol": "ThreadView",
+      "how": {
+        "kind": "mode",
+        "value": "cowork"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "code",
+      "name": "Code",
+      "group": "Modes",
+      "status": "covered",
+      "module": "src/components/CodeDock.tsx",
+      "symbol": "CodeDock",
+      "how": {
+        "kind": "mode",
+        "value": "code"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "projects",
+      "name": "Projects",
+      "group": "Surfaces",
+      "status": "covered",
+      "module": "src/components/Pages.tsx",
+      "symbol": "ProjectsPage",
+      "how": {
+        "kind": "nav",
+        "label": "Projects"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "artifacts",
+      "name": "Artifacts",
+      "group": "Surfaces",
+      "status": "covered",
+      "module": "src/components/Pages.tsx",
+      "symbol": "ArtifactsPage",
+      "how": {
+        "kind": "nav",
+        "label": "Artifacts"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "scheduled",
+      "name": "Scheduled tasks and routines",
+      "group": "Surfaces",
+      "status": "covered",
+      "module": "src/components/Pages.tsx",
+      "symbol": "ScheduledPage",
+      "how": {
+        "kind": "nav",
+        "label": "Scheduled"
+      },
+      "covers": [
+        "Schedules",
+        "Routines"
+      ],
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "dispatch",
+      "name": "Dispatch",
+      "group": "Surfaces",
+      "status": "covered",
+      "module": "src/components/Pages.tsx",
+      "symbol": "DispatchPage",
+      "how": {
+        "kind": "nav",
+        "label": "Dispatch"
+      },
+      "evidence": "scripts/no-stubs-check.cjs handoff"
+    },
+    {
+      "id": "customize",
+      "name": "Customize",
+      "group": "Surfaces",
+      "status": "covered",
+      "module": "src/components/Pages.tsx",
+      "symbol": "CustomizePage",
+      "how": {
+        "kind": "nav",
+        "label": "Customize"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "settings",
+      "name": "Settings",
+      "group": "Surfaces",
+      "status": "covered",
+      "module": "src/components/SettingsView.tsx",
+      "symbol": "SettingsPage",
+      "how": {
+        "kind": "settings",
+        "label": "Preferences"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "search",
+      "name": "Search across chats",
+      "group": "Threads",
+      "status": "covered",
+      "module": "src/palette.ts",
+      "symbol": "paletteMatches",
+      "how": {
+        "kind": "palette",
+        "query": "Artifacts"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "palette",
+      "name": "Command palette",
+      "group": "Threads",
+      "status": "covered",
+      "module": "src/components/Pages.tsx",
+      "symbol": "Palette",
+      "how": {
+        "kind": "palette",
+        "query": "design"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "incognito",
+      "name": "Incognito threads",
+      "group": "Threads",
+      "status": "covered",
+      "module": "src/palette.ts",
+      "symbol": "paletteEntries",
+      "how": {
+        "kind": "palette",
+        "query": "incognito"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "branch",
+      "name": "Branch a thread",
+      "group": "Threads",
+      "status": "covered",
+      "module": "src/agent.ts",
+      "symbol": "forkedThread",
+      "how": {
+        "kind": "thread-action",
+        "label": "Branch"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "star-pin-archive",
+      "name": "Star, pin, archive",
+      "group": "Threads",
+      "status": "covered",
+      "module": "src/components/ThreadView.tsx",
+      "symbol": "ThreadView",
+      "how": {
+        "kind": "thread-action",
+        "label": "Star"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "export-transcript",
+      "name": "Export a transcript",
+      "group": "Threads",
+      "status": "covered",
+      "module": "src/agent.ts",
+      "symbol": "exportTranscript",
+      "how": {
+        "kind": "slash",
+        "command": "/export"
+      },
+      "evidence": "scripts/local-jobs-check.cjs"
+    },
+    {
+      "id": "model-effort",
+      "name": "Model and effort",
+      "group": "Threads",
+      "status": "covered",
+      "module": "src/components/Composer.tsx",
+      "symbol": "Composer",
+      "how": {
+        "kind": "composer",
+        "label": "Model"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "attachments",
+      "name": "Attachments",
+      "group": "Threads",
+      "status": "covered",
+      "module": "src/components/Composer.tsx",
+      "symbol": "Composer",
+      "how": {
+        "kind": "composer",
+        "label": "Attach"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "voice",
+      "name": "Voice",
+      "group": "Threads",
+      "status": "partial",
+      "module": "src/components/Composer.tsx",
+      "symbol": "Composer",
+      "how": {
+        "kind": "composer",
+        "label": "Voice"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "Uses the web speech engine in the composer and the system voice for replies; the vendor's signed speech helper is deferred."
+    },
+    {
+      "id": "artifact-preview",
+      "name": "Artifact preview pane",
+      "group": "Artifacts",
+      "status": "covered",
+      "module": "src/components/ThreadView.tsx",
+      "symbol": "ArtifactPane",
+      "how": {
+        "kind": "artifact-pane",
+        "label": "Open local page"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "artifact-versions",
+      "name": "Version history",
+      "group": "Artifacts",
+      "status": "covered",
+      "module": "src/artifacts.ts",
+      "symbol": "rememberVersion",
+      "how": {
+        "kind": "artifact-pane",
+        "label": "Artifact version"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "artifact-publish",
+      "name": "Publish a local page",
+      "group": "Artifacts",
+      "status": "covered",
+      "module": "electron/platform.cjs",
+      "symbol": "artifact:publish",
+      "how": {
+        "kind": "artifact-pane",
+        "label": "Open local page",
+        "bridge": "publishArtifact"
+      },
+      "evidence": "scripts/no-stubs-check.cjs share"
+    },
+    {
+      "id": "artifact-share",
+      "name": "Share link",
+      "group": "Artifacts",
+      "status": "partial",
+      "module": "electron/platform.cjs",
+      "symbol": "artifact:share",
+      "how": {
+        "kind": "artifact-pane",
+        "label": "Share",
+        "bridge": "shareArtifact"
+      },
+      "evidence": "scripts/no-stubs-check.cjs share",
+      "limit": "Links are local to this Mac. Sharing to another account needs the vendor's servers, which is deferred."
+    },
+    {
+      "id": "design-systems",
+      "name": "Design systems",
+      "group": "Customize",
+      "status": "covered",
+      "module": "src/design.ts",
+      "symbol": "settleDesign",
+      "how": {
+        "kind": "settings",
+        "label": "Design systems"
+      },
+      "evidence": "scripts/local-jobs-check.cjs"
+    },
+    {
+      "id": "skills",
+      "name": "Skills, bundled and yours",
+      "group": "Customize",
+      "status": "covered",
+      "module": "src/skills.ts",
+      "symbol": "skillLines",
+      "how": {
+        "kind": "settings",
+        "label": "Skills"
+      },
+      "evidence": "scripts/local-jobs-check.cjs"
+    },
+    {
+      "id": "connectors",
+      "name": "Connectors",
+      "group": "Customize",
+      "status": "covered",
+      "module": "src/components/SettingsView.tsx",
+      "symbol": "ConnectorLibrary",
+      "how": {
+        "kind": "settings",
+        "label": "Connectors"
+      },
+      "evidence": "scripts/local-jobs-check.cjs"
+    },
+    {
+      "id": "mcp-servers",
+      "name": "MCP servers on this Mac",
+      "group": "Customize",
+      "status": "covered",
+      "module": "electron/platform.cjs",
+      "symbol": "mcp:start",
+      "how": {
+        "kind": "settings",
+        "label": "Developer"
+      },
+      "evidence": "scripts/no-stubs-check.cjs mcp"
+    },
+    {
+      "id": "plugins",
+      "name": "Plugins",
+      "group": "Customize",
+      "status": "covered",
+      "module": "src/components/SettingsView.tsx",
+      "symbol": "Plugins",
+      "how": {
+        "kind": "settings",
+        "label": "Plugins"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "extensions",
+      "name": "Extensions",
+      "group": "Customize",
+      "status": "covered",
+      "module": "src/components/SettingsView.tsx",
+      "symbol": "Extensions",
+      "how": {
+        "kind": "settings",
+        "label": "Extensions"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "memory",
+      "name": "Memory",
+      "group": "Customize",
+      "status": "covered",
+      "module": "src/components/SettingsView.tsx",
+      "symbol": "Privacy",
+      "how": {
+        "kind": "settings",
+        "label": "Privacy"
+      },
+      "evidence": "scripts/local-jobs-check.cjs"
+    },
+    {
+      "id": "styles",
+      "name": "Styles note",
+      "group": "Customize",
+      "status": "covered",
+      "module": "src/components/Pages.tsx",
+      "symbol": "CustomizePage",
+      "how": {
+        "kind": "customize-tab",
+        "label": "styles"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "providers",
+      "name": "Model providers",
+      "group": "Model",
+      "status": "covered",
+      "module": "src/providers.ts",
+      "symbol": "activeProvider",
+      "how": {
+        "kind": "settings",
+        "label": "Model providers"
+      },
+      "evidence": "scripts/no-stubs-check.cjs turn"
+    },
+    {
+      "id": "provider-catalog",
+      "name": "Provider catalog",
+      "group": "Model",
+      "status": "covered",
+      "module": "src/provider-catalog.ts",
+      "symbol": "PROVIDER_CATALOG",
+      "how": {
+        "kind": "settings",
+        "label": "Model providers"
+      },
+      "evidence": "scripts/no-stubs-check.cjs turn"
+    },
+    {
+      "id": "keys",
+      "name": "Saved API keys",
+      "group": "Model",
+      "status": "covered",
+      "module": "src/providers.ts",
+      "symbol": "providerKey",
+      "how": {
+        "kind": "settings",
+        "label": "Model providers"
+      },
+      "evidence": "scripts/no-stubs-check.cjs turn"
+    },
+    {
+      "id": "quick-entry",
+      "name": "Quick entry",
+      "group": "Desktop",
+      "status": "covered",
+      "module": "electron/main.cjs",
+      "symbol": "quick:submit",
+      "how": {
+        "kind": "quick-entry"
+      },
+      "covers": [
+        "General"
+      ],
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "notifications",
+      "name": "Notifications",
+      "group": "Desktop",
+      "status": "covered",
+      "module": "electron/main.cjs",
+      "symbol": "desktop:notify",
+      "how": {
+        "kind": "notify-bridge"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "accessibility",
+      "name": "Accessibility",
+      "group": "Desktop",
+      "status": "covered",
+      "module": "src/components/SettingsView.tsx",
+      "symbol": "Preferences",
+      "how": {
+        "kind": "settings",
+        "label": "Preferences"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "computer-use",
+      "name": "Computer use",
+      "group": "Desktop",
+      "status": "partial",
+      "module": "electron/main.cjs",
+      "symbol": "computer:click",
+      "how": {
+        "kind": "settings",
+        "label": "Cowork"
+      },
+      "evidence": "scripts/no-stubs-check.cjs computer",
+      "limit": "Needs the macOS Screen Recording and Accessibility grants; actions are refused until this Mac allows them."
+    },
+    {
+      "id": "builtin-browser",
+      "name": "Built-in browser",
+      "group": "Desktop",
+      "status": "covered",
+      "module": "src/components/BrowserPane.tsx",
+      "symbol": "BrowserPane",
+      "how": {
+        "kind": "browser-drive"
+      },
+      "evidence": "scripts/no-stubs-check.cjs browser"
+    },
+    {
+      "id": "ios-simulator",
+      "name": "iOS simulator pane",
+      "group": "Desktop",
+      "status": "partial",
+      "module": "src/components/SimulatorPane.tsx",
+      "symbol": "SimulatorPane",
+      "how": {
+        "kind": "bridge-call",
+        "call": "simulators"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "Needs Xcode's simulator tools and a booted device; the pane is empty without them."
+    },
+    {
+      "id": "terminal",
+      "name": "Terminal",
+      "group": "Code",
+      "status": "covered",
+      "module": "electron/platform.cjs",
+      "symbol": "term:start",
+      "how": {
+        "kind": "dock",
+        "label": "Start terminal"
+      },
+      "evidence": "scripts/p0-check.cjs terminal",
+      "covers": [
+        "xterm",
+        "real tty"
+      ]
+    },
+    {
+      "id": "diff",
+      "name": "Diff and commit",
+      "group": "Code",
+      "status": "covered",
+      "module": "electron/platform.cjs",
+      "symbol": "git:run",
+      "how": {
+        "kind": "dock",
+        "label": "Diff"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "worktree",
+      "name": "Worktree and branch",
+      "group": "Code",
+      "status": "covered",
+      "module": "src/local-jobs.ts",
+      "symbol": "worktreePath",
+      "how": {
+        "kind": "dock",
+        "label": "Worktree"
+      },
+      "evidence": "scripts/local-jobs-check.cjs"
+    },
+    {
+      "id": "rewind",
+      "name": "Rewind",
+      "group": "Code",
+      "status": "covered",
+      "module": "src/agent.ts",
+      "symbol": "rewindPoints",
+      "how": {
+        "kind": "dock",
+        "label": "Rewind"
+      },
+      "evidence": "scripts/local-jobs-check.cjs"
+    },
+    {
+      "id": "pull-requests",
+      "name": "Pull requests",
+      "group": "Code",
+      "status": "covered",
+      "module": "src/local-jobs.ts",
+      "symbol": "parsePulls",
+      "how": {
+        "kind": "dock",
+        "label": "Status"
+      },
+      "covers": [
+        "GitHub",
+        "Git"
+      ],
+      "evidence": "scripts/local-jobs-check.cjs"
+    },
+    {
+      "id": "ssh",
+      "name": "Remote over SSH",
+      "group": "Code",
+      "status": "covered",
+      "module": "electron/platform.cjs",
+      "symbol": "ssh:run",
+      "how": {
+        "kind": "dock",
+        "label": "SSH"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "plan-mode",
+      "name": "Plan mode",
+      "group": "Code",
+      "status": "covered",
+      "module": "src/agent.ts",
+      "symbol": "applyPlanGate",
+      "how": {
+        "kind": "dock",
+        "label": "Permission mode"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "approvals",
+      "name": "Approval prompts",
+      "group": "Code",
+      "status": "covered",
+      "module": "src/agent.ts",
+      "symbol": "decideReview",
+      "how": {
+        "kind": "approval-browse"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "sessions",
+      "name": "Session list",
+      "group": "Code",
+      "status": "covered",
+      "module": "src/session-status.ts",
+      "symbol": "applySessionStatus",
+      "how": {
+        "kind": "slash-picker",
+        "command": "/resume"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "documents",
+      "name": "Bundled document skills",
+      "group": "Skills",
+      "status": "covered",
+      "module": "electron/platform.cjs",
+      "symbol": "doc:write",
+      "how": {
+        "kind": "settings",
+        "label": "Skills"
+      },
+      "evidence": "scripts/no-stubs-check.cjs document"
+    },
+    {
+      "id": "import-export",
+      "name": "Import and export",
+      "group": "Data",
+      "status": "covered",
+      "module": "src/local-jobs.ts",
+      "symbol": "bundleZip",
+      "how": {
+        "kind": "settings",
+        "label": "Import & export"
+      },
+      "covers": [
+        "Import & export"
+      ],
+      "evidence": "scripts/local-jobs-check.cjs"
+    },
+    {
+      "id": "chrome-companion",
+      "name": "Chrome companion",
+      "group": "Data",
+      "status": "partial",
+      "module": "electron/platform.cjs",
+      "symbol": "/v1/chrome/next",
+      "how": {
+        "kind": "settings",
+        "label": "Chrome"
+      },
+      "evidence": "scripts/chrome-live-check.cjs",
+      "limit": "A page read needs a site grant accepted in the browser's own permission prompt before it can return text."
+    },
+    {
+      "id": "phone-handoff",
+      "name": "Phone handoff",
+      "group": "Data",
+      "status": "covered",
+      "module": "src/local-jobs.ts",
+      "symbol": "handoffDecision",
+      "how": {
+        "kind": "settings",
+        "label": "Cowork"
+      },
+      "evidence": "scripts/no-stubs-check.cjs handoff"
+    },
+    {
+      "id": "in-app-browser-control",
+      "name": "Browser control from a task",
+      "group": "Data",
+      "status": "covered",
+      "module": "electron/platform.cjs",
+      "symbol": "browser:click",
+      "how": {
+        "kind": "browser-drive"
+      },
+      "evidence": "scripts/no-stubs-check.cjs browser"
+    },
+    {
+      "id": "usage",
+      "name": "Usage",
+      "group": "Account",
+      "status": "partial",
+      "module": "src/components/SettingsView.tsx",
+      "symbol": "Usage",
+      "how": {
+        "kind": "settings",
+        "label": "Usage"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "Counts tokens seen by this app, not an account meter."
+    },
+    {
+      "id": "billing",
+      "name": "Billing",
+      "group": "Account",
+      "status": "partial",
+      "module": "src/components/SettingsView.tsx",
+      "symbol": "Billing",
+      "how": {
+        "kind": "settings",
+        "label": "Billing"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "A local ledger you record yourself; no real charge is made."
+    },
+    {
+      "id": "privacy",
+      "name": "Privacy and data",
+      "group": "Account",
+      "status": "covered",
+      "module": "src/components/SettingsView.tsx",
+      "symbol": "Privacy",
+      "how": {
+        "kind": "settings",
+        "label": "Privacy"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "account",
+      "name": "Local account",
+      "group": "Account",
+      "status": "partial",
+      "module": "src/components/SettingsView.tsx",
+      "symbol": "Account",
+      "how": {
+        "kind": "settings",
+        "label": "Preferences"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "Local profile fields only; signing in to a vendor account is deferred."
+    },
+    {
+      "id": "capabilities",
+      "name": "Capabilities",
+      "group": "Account",
+      "status": "covered",
+      "module": "src/components/SettingsView.tsx",
+      "symbol": "Capabilities",
+      "how": {
+        "kind": "settings",
+        "label": "Capabilities"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces"
+    },
+    {
+      "id": "sign-in",
+      "name": "Sign in with a vendor account",
+      "group": "Deferred",
+      "status": "deferred",
+      "note": "Requires the vendor's own identity backend and OAuth client, which only that vendor can issue; nothing on this Mac can stand in for a hosted sign-in. The app keeps a local account instead.",
+      "module": "src/components/SettingsView.tsx",
+      "symbol": "Account",
+      "how": {
+        "kind": "none"
+      }
+    },
+    {
+      "id": "team-admin",
+      "name": "Teams, seats, roles, admin policy",
+      "group": "Deferred",
+      "status": "deferred",
+      "note": "Teams, seats, roles, and admin policy live on the vendor's servers and are enforced by their account service; a local app has no fleet to administer. Local roles and local shares are the counterpart.",
+      "module": "src/components/SettingsView.tsx",
+      "symbol": "Account",
+      "how": {
+        "kind": "none"
+      }
+    },
+    {
+      "id": "cloud-routines",
+      "name": "Cloud routines",
+      "group": "Deferred",
+      "status": "deferred",
+      "note": "These run on the vendor's cloud while the machine is off, driven by their scheduler servers. The local scheduler covers routines that run on this Mac.",
+      "module": "scripts/scheduler.cjs",
+      "symbol": "taskDueOn",
+      "how": {
+        "kind": "none"
+      }
+    },
+    {
+      "id": "remote-control",
+      "name": "Remote control from another device",
+      "group": "Deferred",
+      "status": "deferred",
+      "note": "Relayed through the vendor's hosted service, which brokers the connection. The local server already accepts phone handoff and the Chrome companion over 127.0.0.1.",
+      "module": "electron/platform.cjs",
+      "symbol": "/v1/handoff",
+      "how": {
+        "kind": "none"
+      }
+    },
+    {
+      "id": "monitoring-retention",
+      "name": "OTel monitoring and retention policy",
+      "group": "Deferred",
+      "status": "deferred",
+      "note": "OTel monitoring and retention policies are server-side controls over a hosted fleet; a local app has no server fleet to monitor or retain.",
+      "module": "src/local-jobs.ts",
+      "symbol": "blankSecrets",
+      "how": {
+        "kind": "none"
+      }
+    },
+    {
+      "id": "native-speech-helper",
+      "name": "Vendor speech helper",
+      "group": "Deferred",
+      "status": "deferred",
+      "note": "Shipped as a signed vendor binary we do not have or distribute. This app uses the web speech engine in the composer and the system voice for reading replies.",
+      "module": "src/components/Composer.tsx",
+      "symbol": "Composer",
+      "how": {
+        "kind": "none"
+      }
+    },
+    {
+      "id": "artifact-export",
+      "name": "Export an artifact as a document",
+      "group": "Artifacts",
+      "status": "covered",
+      "module": "electron/main.cjs",
+      "symbol": "artifact:export",
+      "how": {
+        "kind": "artifact-pane",
+        "label": "Export as",
+        "bridge": "exportArtifact"
+      },
+      "evidence": "scripts/no-stubs-check.cjs document"
+    },
+    {
+      "id": "artifact-compare",
+      "name": "Compare artifact versions",
+      "group": "Artifacts",
+      "status": "covered",
+      "module": "src/artifacts.ts",
+      "symbol": "compareVersions",
+      "how": {
+        "kind": "artifact-compare"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "covers": [
+        "side by side",
+        "Compare versions"
+      ]
+    },
+    {
+      "id": "canvas-board",
+      "name": "Canvas or board view",
+      "group": "Deferred",
+      "status": "deferred",
+      "module": "src/components/ThreadView.tsx",
+      "symbol": "ArtifactPane",
+      "how": {
+        "kind": "none"
+      },
+      "note": "The source product hosts a hosted canvas integration for shared boards. Modbitx artifacts are local documents with a sandboxed preview, so a hosted board has no local server to live on."
+    },
+    {
+      "id": "diagram-generation",
+      "name": "Diagram generation",
+      "group": "Artifacts",
+      "status": "partial",
+      "module": "src/decks.ts",
+      "symbol": "mermaidPreviewDocument",
+      "how": {
+        "kind": "artifact-pane",
+        "label": "Export as"
+      },
+      "limit": "Mermaid artifacts render through the bundled local renderer inside the sandboxed preview, with no network; the diagram path has no automated coverage.",
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "covers": [
+        "mermaid"
+      ]
+    },
+    {
+      "id": "inline-comments",
+      "name": "Inline comments on an artifact",
+      "group": "Deferred",
+      "status": "deferred",
+      "module": "src/artifacts.ts",
+      "symbol": "rememberVersion",
+      "how": {
+        "kind": "none"
+      },
+      "note": "Artifact comments in the source product are shared across accounts on the vendor's server. A local comment store would have no second reader; versions and the compare view cover the local review case."
+    },
+    {
+      "id": "print",
+      "name": "Print an artifact",
+      "group": "Deferred",
+      "status": "deferred",
+      "module": "electron/main.cjs",
+      "symbol": "artifact:export",
+      "how": {
+        "kind": "none"
+      },
+      "note": "Printing is reachable through the exported PDF or the local page opened in a browser; a native print dialog is not wired, and this is recorded rather than implied."
+    },
+    {
+      "id": "shortcut-reference",
+      "name": "Keyboard shortcut reference",
+      "group": "Desktop",
+      "status": "covered",
+      "module": "src/shortcuts.ts",
+      "symbol": "SHORTCUTS",
+      "how": {
+        "kind": "settings",
+        "label": "Keyboard shortcuts"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "covers": [
+        "keyboard shortcuts"
+      ]
+    },
+    {
+      "id": "voice-stop",
+      "name": "Stop voice input",
+      "group": "Threads",
+      "status": "partial",
+      "module": "src/components/Composer.tsx",
+      "symbol": "startDictation",
+      "how": {
+        "kind": "composer",
+        "label": "Voice"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "Listening can be started and stopped in the composer, and a refused microphone is reported; the engine itself is the browser's, so recognition quality is not ours to test."
+    },
+    {
+      "id": "research-mode",
+      "name": "Research mode",
+      "group": "Modes",
+      "status": "partial",
+      "module": "src/research.ts",
+      "symbol": "runResearch",
+      "how": {
+        "kind": "slash-note",
+        "command": "/research"
+      },
+      "evidence": "scripts/no-stubs-check.cjs turn",
+      "limit": "Each pass proposes URLs, fetches them through the same host approvals as the browser tools, cites them inline, and writes a DOCX beside the chat when a folder is granted; the multi-pass loop has no Playwright coverage and needs a provider key.",
+      "covers": [
+        "deep research",
+        "citations",
+        "source ledger"
+      ]
+    },
+    {
+      "id": "slides-artifact",
+      "name": "Slides artifact type",
+      "group": "Artifacts",
+      "status": "partial",
+      "module": "src/decks.ts",
+      "symbol": "slidesPreviewDocument",
+      "how": {
+        "kind": "artifact-pane",
+        "label": "Export as"
+      },
+      "evidence": "scripts/no-stubs-check.cjs document",
+      "limit": "Decks preview inside the artifact pane and export as pptx through the document writer; the deck preview itself has no automated coverage."
+    },
+    {
+      "id": "background-tasks",
+      "name": "Background tasks panel",
+      "group": "Surfaces",
+      "status": "partial",
+      "module": "src/bgtasks.ts",
+      "symbol": "startBgTask",
+      "how": {
+        "kind": "topbar",
+        "label": "Tasks"
+      },
+      "evidence": "scripts/no-stubs-check.cjs turn",
+      "limit": "Rows run chat-only turns with no tools while the open chat keeps working; the panel has no automated coverage."
+    },
+    {
+      "id": "dictation-hotkey",
+      "name": "Dictation push-to-talk",
+      "group": "Threads",
+      "status": "partial",
+      "module": "src/components/Composer.tsx",
+      "symbol": "startDictation",
+      "how": {
+        "kind": "composer",
+        "label": "Voice"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "The global shortcut toggles push-to-talk and the mic button holds to talk; recognition is the browser engine, so accuracy is not ours to test."
+    },
+    {
+      "id": "read-aloud-speakers",
+      "name": "Read aloud with speakers",
+      "group": "Threads",
+      "status": "partial",
+      "module": "electron/platform.cjs",
+      "symbol": "voice:voices",
+      "how": {
+        "kind": "thread-action",
+        "label": "Speak"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "Replies read aloud with a picked speaker and rate from this Mac's installed voices; the voice list needs the desktop app."
+    },
+    {
+      "id": "sidebar-popouts",
+      "name": "Sidebar popouts",
+      "group": "Surfaces",
+      "status": "partial",
+      "module": "electron/main.cjs",
+      "symbol": "createPopout",
+      "how": {
+        "kind": "topbar",
+        "label": "Pop out"
+      },
+      "covers": [
+        "side by side",
+        "edit sidebar",
+        "window"
+      ],
+      "evidence": "scripts/launch-check.cjs",
+      "limit": "A session opens in its own viewer window from \u2318-click or Pop out, and Edit sidebar reorders or hides nav rows; the popout is a read-only viewer, not a full editor."
+    },
+    {
+      "id": "simulator-live-view",
+      "name": "Simulator live view",
+      "group": "Desktop",
+      "status": "partial",
+      "module": "src/components/SimulatorPane.tsx",
+      "symbol": "SimulatorPane",
+      "how": {
+        "kind": "bridge-call",
+        "call": "simulators"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "Live view refreshes the pane about once a second through the same sim bridge the tools use; it is a screenshot poll, not an H264 stream, and needs the desktop app.",
+      "covers": [
+        "live view",
+        "video"
+      ]
+    },
+    {
+      "id": "ssh-host-keys",
+      "name": "SSH host key gating",
+      "group": "Code",
+      "status": "partial",
+      "module": "electron/platform.cjs",
+      "symbol": "ssh:run",
+      "how": {
+        "kind": "dock",
+        "label": "SSH"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "The first connect to an unknown host asks before any command runs, and an approved key is recorded with accept-new; a changed key still fails closed. Agent forwarding and SFTP copy remain unimplemented.",
+      "covers": [
+        "known_hosts",
+        "accept-new"
+      ]
+    },
+    {
+      "id": "structured-questions",
+      "name": "Structured questions",
+      "group": "Threads",
+      "status": "covered",
+      "module": "src/tools.ts",
+      "symbol": "ask_user",
+      "how": {
+        "kind": "questions"
+      },
+      "evidence": "scripts/local-jobs-check.cjs questions"
+    },
+    {
+      "id": "find-in-page",
+      "name": "Find in page",
+      "group": "Threads",
+      "status": "covered",
+      "module": "electron/main.cjs",
+      "symbol": "find:start",
+      "how": {
+        "kind": "find"
+      },
+      "evidence": "scripts/p0-check.cjs find"
+    },
+    {
+      "id": "memory-verbs",
+      "name": "Memory tool verbs",
+      "group": "Customize",
+      "status": "covered",
+      "module": "src/tools.ts",
+      "symbol": "memory_write",
+      "how": {
+        "kind": "memory-verbs"
+      },
+      "evidence": "scripts/local-jobs-check.cjs memory-verbs"
+    },
+    {
+      "id": "task-sandbox",
+      "name": "Task sandbox and egress proxy",
+      "group": "Deferred",
+      "status": "deferred",
+      "module": "src/tools.ts",
+      "symbol": "ensureEdit",
+      "how": {
+        "kind": "none"
+      },
+      "note": "A per-task filesystem and network sandbox needs a platform sandbox engine the app does not bundle. Attempted 2026-10-03: a seatbelt write-clamp via sandbox-exec was prototyped and refused by this macOS (sandbox_apply: Operation not permitted \u2014 third-party use now needs the endpoint-security entitlement), so the honest path is a helper with that entitlement or a VM; tasks meanwhile run on this Mac behind approvals."
+    },
+    {
+      "id": "scratchpad",
+      "name": "Session scratchpad",
+      "group": "Code",
+      "status": "partial",
+      "module": "src/tools.ts",
+      "symbol": "scratchpad_update",
+      "how": {
+        "kind": "slash-note",
+        "command": "/scratchpad"
+      },
+      "evidence": "scripts/no-stubs-check.cjs turn",
+      "limit": "The model keeps per-session working notes across turns and reads them at turn start; the verbs have no automated coverage."
+    },
+    {
+      "id": "session-filters",
+      "name": "Session status filter chips",
+      "group": "Code",
+      "status": "partial",
+      "module": "src/components/Sidebar.tsx",
+      "symbol": "statusFilter",
+      "how": {
+        "kind": "sidebar",
+        "label": "Done"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "Code sessions filter by status chips; statuses come from the Jev classifier and stay unclassified when it is off."
+    },
+    {
+      "id": "quick-actions",
+      "name": "Session quick actions",
+      "group": "Code",
+      "status": "partial",
+      "module": "src/components/ThreadView.tsx",
+      "symbol": "Fix checks",
+      "how": {
+        "kind": "topbar",
+        "label": "Fix checks"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "Commit, Review, and Fix checks draft canned prompts into the composer for code sessions; they launch no separate skill engine."
+    },
+    {
+      "id": "diff-feedback",
+      "name": "Feedback on the working tree",
+      "group": "Code",
+      "status": "partial",
+      "module": "src/components/CodeDock.tsx",
+      "symbol": "onFeedback",
+      "how": {
+        "kind": "dock",
+        "label": "Diff"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "A comment on the diff lands in the composer for the next turn; comments are not anchored to individual lines."
+    },
+    {
+      "id": "density-setting",
+      "name": "Density setting",
+      "group": "Surfaces",
+      "status": "partial",
+      "module": "src/styles.css",
+      "symbol": "data-density",
+      "how": {
+        "kind": "settings",
+        "label": "Density"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "Compact retunes pads, gaps, control heights, radii, and type in Preferences; the setting has no automated coverage."
+    },
+    {
+      "id": "approval-chime",
+      "name": "Approval chime",
+      "group": "Threads",
+      "status": "partial",
+      "module": "src/sound.ts",
+      "symbol": "playApprovalChime",
+      "how": {
+        "kind": "settings",
+        "label": "Play the approval chime"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "An original two-note chime plays when an approval card appears, gated by a Notifications setting; audio cannot assert in the suite."
+    },
+    {
+      "id": "this-computer",
+      "name": "This computer settings hub",
+      "group": "Desktop",
+      "status": "partial",
+      "module": "src/components/SettingsView.tsx",
+      "symbol": "ThisComputer",
+      "how": {
+        "kind": "settings",
+        "label": "This computer"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "Versions, platform, and state-file location show in settings with the computer-use default; the hub reads machine facts only in the desktop app."
+    },
+    {
+      "id": "models-default",
+      "name": "Default model section",
+      "group": "Model",
+      "status": "partial",
+      "module": "src/components/SettingsView.tsx",
+      "symbol": "Models",
+      "how": {
+        "kind": "settings",
+        "label": "Models"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "The default model and effort for new chats are picked in Settings with a per-chat override in the composer; no automated coverage."
+    },
+    {
+      "id": "messages-connector",
+      "name": "Messages bridge",
+      "group": "Customize",
+      "status": "partial",
+      "module": "src/tools.ts",
+      "symbol": "messages_send",
+      "how": {
+        "kind": "settings",
+        "label": "Messages"
+      },
+      "evidence": "scripts/local-jobs-check.cjs connectors",
+      "covers": [
+        "imessage"
+      ],
+      "limit": "messages_recent lists chats and messages_send delivers through AppleScript with an approval before every send; macOS Automation permission and Messages app state are outside the suite's reach."
+    },
+    {
+      "id": "repo-search",
+      "name": "Ripgrep repo search",
+      "group": "Code",
+      "status": "partial",
+      "module": "src/tools.ts",
+      "symbol": "search_repo",
+      "how": {
+        "kind": "dock",
+        "label": "Diff"
+      },
+      "evidence": "scripts/no-stubs-check.cjs turn",
+      "covers": [
+        "rg"
+      ],
+      "limit": "search_repo runs the bundled ripgrep over the granted folder through the search bridge; the binary path is verified only at call time."
+    },
+    {
+      "id": "latex-compile",
+      "name": "LaTeX compilation",
+      "group": "Artifacts",
+      "status": "partial",
+      "module": "electron/main.cjs",
+      "symbol": "latex:compile",
+      "how": {
+        "kind": "dock",
+        "label": "Diff"
+      },
+      "evidence": "scripts/no-stubs-check.cjs document",
+      "limit": "Compiles through a system Tectonic or TeX toolchain and names the install command when none exists; Modbitx does not bundle a compiler, and compile output cannot be asserted headlessly."
+    },
+    {
+      "id": "plugin-packages",
+      "name": "Plugin packages",
+      "group": "Customize",
+      "status": "partial",
+      "module": "electron/platform.cjs",
+      "symbol": "readPluginSkills",
+      "how": {
+        "kind": "settings",
+        "label": "Plugins"
+      },
+      "covers": [
+        "codex plugin",
+        "mcp servers",
+        "zip"
+      ],
+      "evidence": "scripts/local-jobs-check.cjs skills",
+      "limit": "Folders with plugin.json, skills/*/SKILL.md, and .mcp.json load live: skills join the list with their enable state kept, MCP servers appear as connectors started from Developer, and a .zip installs from Extensions with this Mac's own expander; the watcher and loader have unit coverage only."
+    },
+    {
+      "id": "shortcut-guide",
+      "name": "Keyboard shortcut guide",
+      "group": "Surfaces",
+      "status": "partial",
+      "module": "src/App.tsx",
+      "symbol": "ShortcutsGuide",
+      "how": {
+        "kind": "key",
+        "label": "?"
+      },
+      "evidence": "scripts/local-jobs-check.cjs shortcuts",
+      "limit": "The ? overlay lists the registered shortcuts from the same list the settings page reads; it shows nothing for keys other apps own."
+    },
+    {
+      "id": "quote-reply",
+      "name": "Quote reply",
+      "group": "Threads",
+      "status": "partial",
+      "module": "src/components/ThreadView.tsx",
+      "symbol": "Quote",
+      "how": {
+        "kind": "thread-action",
+        "label": "Quote"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "Quoting drops the first 220 characters of a message into the composer as a markdown block; longer messages are cut, not folded."
+    },
+    {
+      "id": "notify-sound",
+      "name": "Notification sound",
+      "group": "Threads",
+      "status": "partial",
+      "module": "src/sound.ts",
+      "symbol": "playNotificationDing",
+      "how": {
+        "kind": "settings",
+        "label": "Play a notification sound"
+      },
+      "evidence": "scripts/surfaces-check.cjs surfaces",
+      "limit": "An original synthesized ding plays when a reply-ready notice posts, gated by a Notifications switch; audio cannot assert in the suite."
+    },
+    {
+      "id": "viz-widgets",
+      "name": "Visualization widgets",
+      "group": "Artifacts",
+      "status": "partial",
+      "module": "src/viz.ts",
+      "symbol": "vizRuntime",
+      "how": {
+        "kind": "artifact-pane",
+        "label": "Export as"
+      },
+      "covers": [
+        "visualize"
+      ],
+      "evidence": "scripts/local-jobs-check.cjs design",
+      "limit": "viz-stat, viz-bars, and viz-calendar render inside HTML artifact previews with the design system palette and no network; the widget DOM cannot be asserted headlessly in this environment."
+    },
+    {
+      "id": "while-working-awake",
+      "name": "While-working keep awake",
+      "group": "Desktop",
+      "status": "partial",
+      "module": "src/App.tsx",
+      "symbol": "runningBgTasks",
+      "how": {
+        "kind": "settings",
+        "label": "Keep this Mac awake"
+      },
+      "evidence": "scripts/local-jobs-check.cjs tasks",
+      "limit": "A running turn or background task starts the powerSaveBlocker even when the manual switch is off; wake-from-sleep scheduling (pmset) is not implemented."
+    },
+    {
+      "id": "record-replay",
+      "name": "Record and replay",
+      "group": "Desktop",
+      "status": "partial",
+      "module": "electron/platform.cjs",
+      "symbol": "recording:start",
+      "how": {
+        "kind": "slash-note",
+        "command": "/record"
+      },
+      "covers": [
+        "computer history"
+      ],
+      "evidence": "scripts/no-stubs-check.cjs computer",
+      "limit": "A user-started recording frames the screen every 5 seconds with the frontmost app named, capped at 20 minutes in temp, and computer_history reads the timeline; Screen Recording permission and frame capture cannot be asserted headlessly."
+    }
+  ]
+}

@@ -1,0 +1,367 @@
+{
+  "goal": "clear pending items found by scanning the app",
+  "sweeps": [
+    {
+      "class": "a",
+      "how": "every covered or partial surface's evidence pointer is resolved to a repo script, and the named mode string is looked for in that script",
+      "findingsNow": 0,
+      "fixedDuringThisWork": 1
+    },
+    {
+      "class": "b",
+      "how": "every settings key the settings screens patch, and every AppState field, is looked for as a reader outside the settings screens (optional chaining and the store included)",
+      "findingsNow": 3,
+      "fixedDuringThisWork": 3
+    },
+    {
+      "class": "c",
+      "how": "every exported name in src, electron, scripts, and extensions is looked for as an importer in another file",
+      "findingsNow": 0,
+      "fixedDuringThisWork": 2
+    },
+    {
+      "class": "d",
+      "how": "the parity map's deferred notes and partial limits are read as recorded incompleteness",
+      "findingsNow": 46,
+      "fixedDuringThisWork": 0
+    }
+  ],
+  "dispositions": [
+    "fixed",
+    "deferred",
+    "not-a-defect"
+  ],
+  "items": [
+    {
+      "class": "b",
+      "pointer": "src/components/SettingsView.tsx Local connectors switches",
+      "disposition": "fixed",
+      "reason": "state.connectors had no reader; connectorLines now feeds the request and the section states the count, asserted by local-jobs-check and the surface sweep."
+    },
+    {
+      "class": "b",
+      "pointer": "settings.fullName",
+      "disposition": "fixed",
+      "reason": "now names the account holder in the request through whoIsThis in src/api.ts, asserted by local-jobs-check."
+    },
+    {
+      "class": "b",
+      "pointer": "settings.email",
+      "disposition": "fixed",
+      "reason": "now travels with the account holder in the request and in the local server's /v1/status payload for the phone page."
+    },
+    {
+      "class": "b",
+      "pointer": "settings.seats",
+      "disposition": "deferred",
+      "reason": "a seat count only has meaning on the vendor's account servers, which are deferred; the field stays as the local display of the workspace."
+    },
+    {
+      "class": "b",
+      "pointer": "settings.members",
+      "disposition": "deferred",
+      "reason": "workspace membership is administered by the vendor's servers, deferred with team administration; locally it is a list you keep."
+    },
+    {
+      "class": "b",
+      "pointer": "settings.invoices",
+      "disposition": "deferred",
+      "reason": "this is a local ledger you record yourself, because billing is a vendor-server feature that is deferred."
+    },
+    {
+      "class": "c",
+      "pointer": "src/catalog.ts MODELS",
+      "disposition": "fixed",
+      "reason": "the xAI model list now comes from the generated provider catalog, so MODELS was removed; a rescan reports no dead exports."
+    },
+    {
+      "class": "c",
+      "pointer": "src/providers.ts providerKeyEnv",
+      "disposition": "fixed",
+      "reason": "nothing imported it after the provider layer settled; removed, and the rescan reports no dead exports."
+    },
+    {
+      "class": "a",
+      "pointer": "parity map evidence pointers",
+      "disposition": "fixed",
+      "reason": "every covered and partial surface now names a repo script and mode, and parity-check.cjs fails when the script or mode is missing."
+    },
+    {
+      "class": "d",
+      "pointer": "voice",
+      "disposition": "deferred",
+      "reason": "Uses the web speech engine in the composer and the system voice for replies; the vendor's signed speech helper is deferred."
+    },
+    {
+      "class": "d",
+      "pointer": "artifact-share",
+      "disposition": "deferred",
+      "reason": "Links are local to this Mac. Sharing to another account needs the vendor's servers, which is deferred."
+    },
+    {
+      "class": "d",
+      "pointer": "computer-use",
+      "disposition": "deferred",
+      "reason": "Needs the macOS Screen Recording and Accessibility grants; actions are refused until this Mac allows them."
+    },
+    {
+      "class": "d",
+      "pointer": "ios-simulator",
+      "disposition": "deferred",
+      "reason": "Needs Xcode's simulator tools and a booted device; the pane is empty without them."
+    },
+    {
+      "class": "d",
+      "pointer": "chrome-companion",
+      "disposition": "deferred",
+      "reason": "A page read needs a site grant accepted in the browser's own permission prompt before it can return text."
+    },
+    {
+      "class": "d",
+      "pointer": "usage",
+      "disposition": "deferred",
+      "reason": "Counts tokens seen by this app, not an account meter."
+    },
+    {
+      "class": "d",
+      "pointer": "billing",
+      "disposition": "deferred",
+      "reason": "A local ledger you record yourself; no real charge is made."
+    },
+    {
+      "class": "d",
+      "pointer": "account",
+      "disposition": "deferred",
+      "reason": "Local profile fields only; signing in to a vendor account is deferred."
+    },
+    {
+      "class": "d",
+      "pointer": "sign-in",
+      "disposition": "deferred",
+      "reason": "Requires the vendor's own identity backend and OAuth client, which only that vendor can issue; nothing on this Mac can stand in for a hosted sign-in. The app keeps a local account instead."
+    },
+    {
+      "class": "d",
+      "pointer": "team-admin",
+      "disposition": "deferred",
+      "reason": "Teams, seats, roles, and admin policy live on the vendor's servers and are enforced by their account service; a local app has no fleet to administer. Local roles and local shares are the counterpart."
+    },
+    {
+      "class": "d",
+      "pointer": "cloud-routines",
+      "disposition": "deferred",
+      "reason": "These run on the vendor's cloud while the machine is off, driven by their scheduler servers. The local scheduler covers routines that run on this Mac."
+    },
+    {
+      "class": "d",
+      "pointer": "remote-control",
+      "disposition": "deferred",
+      "reason": "Relayed through the vendor's hosted service, which brokers the connection. The local server already accepts phone handoff and the Chrome companion over 127.0.0.1."
+    },
+    {
+      "class": "d",
+      "pointer": "monitoring-retention",
+      "disposition": "deferred",
+      "reason": "OTel monitoring and retention policies are server-side controls over a hosted fleet; a local app has no server fleet to monitor or retain."
+    },
+    {
+      "class": "d",
+      "pointer": "native-speech-helper",
+      "disposition": "deferred",
+      "reason": "Shipped as a signed vendor binary we do not have or distribute. This app uses the web speech engine in the composer and the system voice for reading replies."
+    },
+    {
+      "class": "d",
+      "pointer": "canvas-board",
+      "disposition": "deferred",
+      "reason": "The source product hosts a hosted canvas integration for shared boards. Modbitx artifacts are local documents with a sandboxed preview, so a hosted board has no local server to live on."
+    },
+    {
+      "class": "d",
+      "pointer": "diagram-generation",
+      "disposition": "deferred",
+      "reason": "Status corrected: the parent's renderer claim was wrong. Partial until a bundled Mermaid renderer ships."
+    },
+    {
+      "class": "d",
+      "pointer": "inline-comments",
+      "disposition": "deferred",
+      "reason": "Artifact comments in the source product are shared across accounts on the vendor's server. A local comment store would have no second reader; versions and the compare view cover the local review case."
+    },
+    {
+      "class": "d",
+      "pointer": "print",
+      "disposition": "deferred",
+      "reason": "Printing is reachable through the exported PDF or the local page opened in a browser; a native print dialog is not wired, and this is recorded rather than implied."
+    },
+    {
+      "class": "d",
+      "pointer": "voice-stop",
+      "disposition": "deferred",
+      "reason": "Listening can be started and stopped in the composer, and a refused microphone is reported; the engine itself is the browser's, so recognition quality is not ours to test."
+    },
+    {
+      "class": "d",
+      "pointer": "research-mode",
+      "disposition": "deferred",
+      "reason": "The single-turn flow is real and proven; the multi-step loop is roadmap P1, so the limit stands until it ships."
+    },
+    {
+      "class": "d",
+      "pointer": "slides-artifact",
+      "disposition": "deferred",
+      "reason": "Writing and exporting pptx is real; the preview gap is recorded until a slide-deck preview lands."
+    },
+    {
+      "class": "d",
+      "pointer": "background-tasks",
+      "disposition": "deferred",
+      "reason": "The scheduler and Dispatch cover delayed runs; a concurrent-agent panel is roadmap P1, so the limit stands."
+    },
+    {
+      "class": "d",
+      "pointer": "dictation-hotkey",
+      "disposition": "deferred",
+      "reason": "Composer dictation works; the global hotkey is a P1 item recorded as the limit."
+    },
+    {
+      "class": "d",
+      "pointer": "read-aloud-speakers",
+      "disposition": "deferred",
+      "reason": "One system voice reads replies; multi-speaker playback is a P1 item recorded as the limit."
+    },
+    {
+      "class": "d",
+      "pointer": "sidebar-popouts",
+      "disposition": "deferred",
+      "reason": "Quick entry and collapse are real; session popouts and sidebar customization are P1, so the limit stands."
+    },
+    {
+      "class": "d",
+      "pointer": "simulator-live-view",
+      "disposition": "deferred",
+      "reason": "Screenshot control is real; the live stream is a P2 item recorded as the limit."
+    },
+    {
+      "class": "d",
+      "pointer": "ssh-host-keys",
+      "disposition": "deferred",
+      "reason": "Remote commands work over the system ssh; host-key gating and SFTP are P2 items recorded as the limit."
+    },
+    {
+      "class": "d",
+      "pointer": "task-sandbox",
+      "disposition": "deferred",
+      "reason": "A real sandbox needs a platform engine the app does not bundle; approvals are the honest local counterpart for now; a sandbox-exec write-clamp was prototyped and refused by this macOS (sandbox_apply: Operation not permitted), so the clamp needs an entitled helper or a VM."
+    },
+    {
+      "class": "d",
+      "pointer": "scratchpad",
+      "disposition": "deferred",
+      "reason": "the scratchpad verbs and /scratchpad view have no Playwright coverage in this environment; the loop is implemented and exercised through the turn path."
+    },
+    {
+      "class": "d",
+      "pointer": "session-filters",
+      "disposition": "deferred",
+      "reason": "status chips filter Code sessions in the sidebar; classification itself depends on the Jev session judge and stays unclassified when routing is off."
+    },
+    {
+      "class": "d",
+      "pointer": "quick-actions",
+      "disposition": "deferred",
+      "reason": "Commit, Review, and Fix checks draft canned prompts rather than running a skill engine of their own; deeper wiring would ride skills."
+    },
+    {
+      "class": "d",
+      "pointer": "diff-feedback",
+      "disposition": "deferred",
+      "reason": "comments on the working tree land in the composer un-anchored; per-line anchoring needs a diff-position model the dock does not keep yet."
+    },
+    {
+      "class": "d",
+      "pointer": "density-setting",
+      "disposition": "deferred",
+      "reason": "the compact token block is implemented in CSS and Preferences; visual settings are asserted by eye, not by the suite."
+    },
+    {
+      "class": "d",
+      "pointer": "approval-chime",
+      "disposition": "deferred",
+      "reason": "audio playback cannot be asserted headlessly; the chime is an original synthesized asset gated by a Notifications switch."
+    },
+    {
+      "class": "d",
+      "pointer": "this-computer",
+      "disposition": "deferred",
+      "reason": "the hub reads machine facts only inside the desktop app; a browser preview shows a placeholder note."
+    },
+    {
+      "class": "d",
+      "pointer": "models-default",
+      "disposition": "deferred",
+      "reason": "the default model row patches the same setting the provider screens own; it has no dedicated test."
+    },
+    {
+      "class": "d",
+      "pointer": "messages-connector",
+      "disposition": "deferred",
+      "reason": "sending iMessages depends on macOS Automation permission and the Messages app's own state; the bridge reports refusals honestly instead of retrying."
+    },
+    {
+      "class": "d",
+      "pointer": "repo-search",
+      "disposition": "deferred",
+      "reason": "ripgrep ships as a dependency binary; only call-time verification exists and no test asserts match output."
+    },
+    {
+      "class": "d",
+      "pointer": "latex-compile",
+      "disposition": "deferred",
+      "reason": "no LaTeX toolchain is bundled; the tool detects Tectonic or TeX at call time and names the install command when absent."
+    },
+    {
+      "class": "d",
+      "pointer": "plugin-packages",
+      "disposition": "deferred",
+      "reason": "packages load their skills only; MCP servers declared in a package are not started, and the folder watcher has no automated coverage."
+    },
+    {
+      "class": "d",
+      "pointer": "shortcut-guide",
+      "disposition": "deferred",
+      "reason": "the overlay reuses the checked shortcuts list, but the ? key binding itself has no Playwright coverage in this environment."
+    },
+    {
+      "class": "d",
+      "pointer": "quote-reply",
+      "disposition": "deferred",
+      "reason": "quoting truncates long messages at 220 characters rather than folding them."
+    },
+    {
+      "class": "d",
+      "pointer": "notify-sound",
+      "disposition": "deferred",
+      "reason": "audio playback cannot be asserted headlessly; the ding is an original synthesized asset gated by a setting."
+    },
+    {
+      "class": "d",
+      "pointer": "viz-widgets",
+      "disposition": "deferred",
+      "reason": "widgets are injected into sandboxed artifact previews; their Shadow DOM rendering needs a browser run the suite cannot make here."
+    },
+    {
+      "class": "d",
+      "pointer": "while-working-awake",
+      "disposition": "deferred",
+      "reason": "powerSaveBlocker state is observable only in a live app session; wake-from-sleep scheduling needs privileged pmset access and stays unimplemented."
+    },
+    {
+      "class": "d",
+      "pointer": "record-replay",
+      "disposition": "deferred",
+      "reason": "frames depend on the Screen Recording grant and live capture; the recorder keeps only the latest session in temp and asserts nothing headlessly."
+    }
+  ],
+  "order": "fixed items are records of what the scan found before the fix; findingsNow is what a fresh scan reports"
+}
