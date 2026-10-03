@@ -169,6 +169,13 @@ async function checkTerminal(chromium) {
       start?.click();
     });
     await page.waitForSelector("input[aria-label='Shell command']", { timeout: 15000 });
+    // Let the login shell print its prompt first: a command written before the
+    // prompt can execute without the readline echo the next assertion reads.
+    await page.waitForFunction(
+      () => (document.querySelector(".term-log")?.innerText || "").trim().length > 0,
+      null,
+      { timeout: 10000 }
+    );
     await page.fill("input[aria-label='Shell command']", "stty size");
     await page.press("input[aria-label='Shell command']", "Enter");
     await page.waitForFunction(() => /\d{2,}\s+\d{2,}/.test((document.querySelector(".term-log")?.innerText || "").replace(/\u001b\[[0-9;?]*[A-Za-z]/g, "")), null, { timeout: 20000 });
