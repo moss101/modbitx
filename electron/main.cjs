@@ -454,9 +454,10 @@ ipcMain.handle("model:stream", async (event, payload) => {
   }
   // Hold the body until the renderer confirms its listener: chunks sent before
   // a subscription exists are dropped, and a slow machine can dispatch the
-  // whole response inside the invoke round-trip. A lost go still drains after
-  // the safety pause instead of hanging the turn forever.
-  await new Promise((resolve) => {
+  // whole response inside the invoke round-trip. The gate waits inside the
+  // reader task — never blocking the reply, or the renderer could never send
+  // the go signal and every stream would ride the 5s safety timer into a race.
+  const goGate = new Promise((resolve) => {
     const onGo = (_e, goId) => {
       if (goId !== id) return;
       ipcMain.removeListener("model:stream-go", onGo);
@@ -473,6 +474,7 @@ ipcMain.handle("model:stream", async (event, payload) => {
   const decoder = new TextDecoder();
   void (async () => {
     try {
+      await goGate;
       for (;;) {
         const { value, done } = await reader.read();
         if (done) break;
