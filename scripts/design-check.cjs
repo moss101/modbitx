@@ -18,7 +18,8 @@ const expect = (name, cond, detail) => {
 
 (async () => {
   const browser = await chromium.connectOverCDP(`http://127.0.0.1:${PORT}`);
-  const page = browser.contexts()[0].pages().find((p) => p.url().includes("5173")) || browser.contexts()[0].pages()[0];
+  // The main window: skip viewer popouts and probe pages.
+  const page = browser.contexts()[0].pages().find((p) => p.url().includes("5173") && !p.url().includes("?")) || browser.contexts()[0].pages().find((p) => p.url().includes("5173")) || browser.contexts()[0].pages()[0];
   await page.waitForLoadState("domcontentloaded");
   await page.waitForTimeout(1200);
 

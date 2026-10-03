@@ -44,7 +44,8 @@ const FIXTURE_ARTIFACT = "```html artifact title=\"Parity probe\"\n<!doctype htm
   const { chromium } = playwright();
   const browser = await chromium.connectOverCDP(`http://127.0.0.1:${PORT}`);
   const ctx = browser.contexts()[0];
-  const page = ctx.pages().find((p) => p.url().includes("5173")) || ctx.pages()[0];
+  // The main window: skip viewer popouts and probe pages.
+  const page = ctx.pages().find((p) => p.url().includes("5173") && !p.url().includes("?")) || ctx.pages().find((p) => p.url().includes("5173")) || ctx.pages()[0];
   await page.waitForLoadState("domcontentloaded");
   await page.reload();
   await page.waitForTimeout(2500);

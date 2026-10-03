@@ -96,7 +96,8 @@ const evaluate = async (client, expression) => {
   }
   const browser = await chromium.connectOverCDP("http://127.0.0.1:9222");
   const ctx = browser.contexts()[0];
-  const app = ctx.pages().find((p) => p.url().includes("5173")) || ctx.pages()[0];
+  // The main window: skip viewer popouts and probe pages.
+  const app = ctx.pages().find((p) => p.url().includes("5173") && !p.url().includes("?")) || ctx.pages().find((p) => p.url().includes("5173")) || ctx.pages()[0];
   await app.waitForLoadState("domcontentloaded");
   await app.waitForTimeout(1500);
 

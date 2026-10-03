@@ -54,7 +54,8 @@ const ARTIFACT = "```html artifact title=\"Parity probe\"\n<!doctype html><title
   const { chromium } = playwright();
   const browser = await chromium.connectOverCDP(`http://127.0.0.1:${PORT}`);
   const ctx = browser.contexts()[0];
-  const page = ctx.pages().find((p) => p.url().includes("5173")) || ctx.pages()[0];
+  // The main window: skip viewer popouts and probe pages.
+  const page = ctx.pages().find((p) => p.url().includes("5173") && !p.url().includes("?")) || ctx.pages().find((p) => p.url().includes("5173")) || ctx.pages()[0];
   await page.waitForLoadState("domcontentloaded");
   await page.reload();
   await page.waitForTimeout(2500);
@@ -273,6 +274,11 @@ const ARTIFACT = "```html artifact title=\"Parity probe\"\n<!doctype html><title
           tasks: !!document.querySelector(".bg-tasks"),
           banner: (document.querySelector(".banner")?.textContent || "").trim()
         }));
+        // Pop out opens a viewer window; close it so later checks keep the
+        // main page as the first 5173 page in the context.
+        for (const open of page.context().pages()) {
+          if (open.url().includes("popout=1")) await open.close().catch(() => {});
+        }
         return { ok: clicked && (after !== before || panel.tasks || panel.banner.length > 0), detail: `${how.label}: clicked=${clicked}, tasks panel=${panel.tasks}, banner="${panel.banner.slice(0, 60)}"` };
       },
       // A keypress surface: the shortcut guide opens on ? and closes on Escape.
