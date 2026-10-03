@@ -452,6 +452,23 @@ ipcMain.handle("model:stream", async (event, payload) => {
     const text = await response.text().catch(() => "");
     return { id, ok: false, status: response.status, text: text.slice(0, 4000) };
   }
+  // Hold the body until the renderer confirms its listener: chunks sent before
+  // a subscription exists are dropped, and a slow machine can dispatch the
+  // whole response inside the invoke round-trip. A lost go still drains after
+  // the safety pause instead of hanging the turn forever.
+  await new Promise((resolve) => {
+    const onGo = (_e, goId) => {
+      if (goId !== id) return;
+      ipcMain.removeListener("model:stream-go", onGo);
+      clearTimeout(timer);
+      resolve();
+    };
+    const timer = setTimeout(() => {
+      ipcMain.removeListener("model:stream-go", onGo);
+      resolve();
+    }, 5000);
+    ipcMain.on("model:stream-go", onGo);
+  });
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   void (async () => {

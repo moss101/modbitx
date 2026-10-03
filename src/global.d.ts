@@ -16,6 +16,8 @@ declare global {
       modelChat: (payload: { url: string; key: string; body: Record<string, unknown> }) => Promise<{ ok: boolean; status: number; text: string }>;
       /** Starts a streaming completion in the main process. Chunks arrive on onModelStream under this id. */
       modelStream: (payload: { url: string; key: string; body: Record<string, unknown> }) => Promise<{ id: string; ok: boolean; status: number; text?: string }>;
+      /** Tells the main process the stream listener is attached; the body flows only after this. */
+      modelStreamGo: (id: string) => void;
       onModelStream: (handler: (event: { id: string; type: "chunk" | "end" | "error"; text?: string; message?: string }) => void) => () => void;
       hideQuick: () => Promise<void>;
       submitQuick: (text: string) => Promise<void>;

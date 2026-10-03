@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld("modbitx", {
   keyEnv: (name) => ipcRenderer.invoke("state:key-env", name),
   modelChat: (payload) => ipcRenderer.invoke("model:chat", payload),
   modelStream: (payload) => ipcRenderer.invoke("model:stream", payload),
+  modelStreamGo: (id) => ipcRenderer.send("model:stream-go", id),
   onModelStream: (handler) => {
     const listener = (_event, payload) => handler(payload);
     ipcRenderer.on("model:stream", listener);

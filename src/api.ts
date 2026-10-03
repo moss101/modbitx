@@ -254,23 +254,30 @@ function providerFailure(status: number, text: string, providerName: string): st
 /**
  * Decoded response text one chunk at a time. Every provider goes through the main
  * process, so no provider depends on the renderer passing a CORS preflight.
+ * The listener attaches before the request, and the main process holds the
+ * response body until the renderer's go signal — on a slow machine the first
+ * chunk (even the end) can otherwise be dispatched before a subscription
+ * exists, and events sent before a subscription are dropped.
  */
 async function* responseChunks(settings: Settings, body: Record<string, unknown>): AsyncGenerator<string> {
-  const started = await window.modbitx?.modelStream({ url: modelUrl(settings), key: activeKey(settings), body });
-  if (!started) throw new Error("This copy of Modbitx cannot reach a model provider.");
-  if (!started.ok) throw new Error(providerFailure(started.status, String(started.text || ""), activeProvider(settings).name));
   const queue: string[] = [];
   let finished = false;
   let failure = "";
   let wake: (() => void) | null = null;
   const off = window.modbitx?.onModelStream((event) => {
-    if (event.id !== started.id) return;
+    if (event.id !== streamId) return;
     if (event.type === "chunk" && event.text) queue.push(event.text);
     if (event.type === "end") finished = true;
     if (event.type === "error") failure = event.message || "The stream failed.";
     wake?.();
   });
+  let streamId = "";
   try {
+    const started = await window.modbitx?.modelStream({ url: modelUrl(settings), key: activeKey(settings), body });
+    if (!started) throw new Error("This copy of Modbitx cannot reach a model provider.");
+    if (!started.ok) throw new Error(providerFailure(started.status, String(started.text || ""), activeProvider(settings).name));
+    streamId = started.id;
+    window.modbitx?.modelStreamGo?.(started.id);
     while (!finished || queue.length) {
       if (queue.length) {
         yield queue.shift() as string;
