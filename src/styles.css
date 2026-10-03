@@ -29,10 +29,7 @@
   --cds-gray-850: #151515;
   --cds-gray-900: #0b0b0b;
 
-  /* tokens are authored on a 17px root then multiplied back */
-  --cds-rem-scale: calc(16 / 17);
-
-  /* accent — clay, plus supporting pictogram hues */
+  /* accent */ — clay, plus supporting pictogram hues */
   --cds-clay: #d97757;
   --cds-clay-emphasized: #c6613f;
   --cds-heather: #cbcadb;

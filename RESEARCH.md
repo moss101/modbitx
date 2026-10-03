@@ -1,6 +1,6 @@
 # Claude Desktop study notes for Modbitx
 
-Source inspected read-only: `Claude.app` version **2.16120.0**, bundle id `com.anthropic.claudefordesktop`, plus `EXTRACTION-MANIFEST.md` and the English UI strings in `Contents/Resources/ion-dist/i18n/en-US.json` (32,243 strings). Proprietary script, fonts, icons, and native helpers were not copied into this repo. The 2026-10-02 deep analysis of this bundle lives in [PARITY-ANALYSIS.md](PARITY-ANALYSIS.md) and `research/2026-10-02-deep-analysis/`.
+Source inspected read-only: `Claude.app` version **2.16120.0**, bundle id `com.anthropic.claudefordesktop`, plus `EXTRACTION-MANIFEST.md` and the English UI strings in `Contents/Resources/ion-dist/i18n/en-US.json` (32,243 strings). Proprietary script, fonts, icons, and native helpers were not copied into this repo. The 2026-10-02 deep analysis of this bundle lives in [PARITY-ANALYSIS.md](PARITY-ANALYSIS.md) and `research/2026-10-02-deep-analysis/`. The 2026-10-03 study of Devin Desktop (the Windsurf-lineage VS Code fork at `~/zee/Devin.app`, v1.126.0) lives in `research/2026-10-03-devin-analysis/`.
 
 ## Shell
 
