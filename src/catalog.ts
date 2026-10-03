@@ -67,6 +67,8 @@ export const DEFAULT_SETTINGS: Settings = {
   computerMode: "background",
   computerGuard: true,
   taskVm: true,
+  commandRules: [],
+  autoCompact: true,
   githubToken: "",
   slackToken: "",
   linearKey: "",

@@ -335,6 +335,7 @@ function applySettingsPatch(current: Settings, patch: Partial<Settings>): Settin
     ...settleDesign(current, patch),
     motion: next.motion === "reduce" ? "reduce" : "system",
     density: next.density === "compact" ? "compact" : "comfortable",
+    commandRules: Array.isArray(next.commandRules) ? next.commandRules.filter((rule) => rule && typeof rule.pattern === "string" && (rule.verdict === "allow" || rule.verdict === "deny")) : [],
     blockedHosts: next.blockedHosts || [],
     highRiskHosts: next.highRiskHosts || [],
     deniedApps: next.deniedApps || [],

@@ -10,6 +10,7 @@ import { runProjectHooks } from "../hooks";
 import { applyMemoryVerb, memoryPromptLines } from "../memory";
 import { projectPrompt } from "../local-jobs";
 import { runResearch, researchMessage, type ResearchStep } from "../research";
+import { addRule, ruleFromAction } from "../approvals";
 import { markHighRisk } from "../harness";
 import { listMentionPaths, loadFolderPack } from "../rules";
 import { applySessionStatus } from "../session-status";
@@ -222,6 +223,22 @@ export function ThreadView() {
     }
 
   async function runInner() {
+    // Auto-compaction, mirroring the parent: past a rough context size the
+    // older messages fold into a summary so the turn fits without asking.
+    if (state.settings.autoCompact !== false && messages.length >= 8) {
+      const chars = messages.reduce((sum, message) => sum + message.content.length, 0);
+      if (chars > 96_000) {
+        try {
+          const summary = await summarizeHistory({ ...state.settings, model: activeThread!.model, effort: activeThread!.effort }, messages.slice(0, -4));
+          messages = [
+            { id: newId(), role: "user", content: `Earlier conversation, compacted:\n${summary}`, createdAt: Date.now() },
+            ...messages.slice(-4)
+          ];
+          dispatch({ type: "patch-thread", id: activeThread!.id, patch: { messages } });
+          setRouteLine("Compacted the older conversation automatically to fit the turn.");
+        } catch { /* a failed compaction must not stop the turn */ }
+      }
+    }
     const assistantId = newId();
     if (replaceFrom) {
       const index = messages.findIndex((message) => message.id === replaceFrom);
@@ -367,6 +384,7 @@ export function ThreadView() {
         messagesOn: state.connectors.some((connector) => connector.id === "messages" && connector.enabled),
         computerGuard: state.settings.computerGuard !== false,
         taskVm: state.settings.taskVm !== false,
+        commandRules: state.settings.commandRules || [],
         guardCheck: () => window.modbitx?.guardCheck?.() ?? Promise.resolve({ secureInput: false, sinceKey: 999, sinceMouse: 999 }),
         slackOn: state.connectors.some((connector) => connector.id === "slack" && connector.enabled),
         slackToken: state.settings.slackToken || "",
@@ -1088,6 +1106,17 @@ export function ThreadView() {
               <div className="top-actions">
                 <button className="send" onClick={() => answer("task")}>{approval.kind === "browser" ? "Allow for this task" : "Allow"}</button>
                 {approval.kind === "browser" && !approval.highRisk && <button className="ghost" onClick={() => answer("always")}>Always</button>}
+                {approval.kind !== "browser" && ruleFromAction(approval.detail) && (
+                  <button
+                    className="ghost"
+                    title="Save an allow rule for commands starting with the same word"
+                    onClick={() => {
+                      const rule = ruleFromAction(approval.detail);
+                      if (rule) dispatch({ type: "settings", patch: { commandRules: addRule(state.settings.commandRules || [], rule) } });
+                      answer("task");
+                    }}
+                  >Always allow this</button>
+                )}
                 {approval.kind === "browser" && <button className="ghost" onClick={() => answer("once")}>Just once</button>}
                 <button className="ghost" onClick={() => answer("no")}>Deny</button>
               </div>

@@ -3,6 +3,7 @@ import { branchName } from "./branch";
 import { interpretDesign, type DesignSystem } from "./design";
 import { actionToCall, browserOptions, controlsFromDom, decideBrowserStep, markHighRisk, MAX_BROWSER_STEPS, siteGate, valuesInGoal } from "./harness";
 import { formatAnswer, normalizeQuestion, type Question } from "./questions";
+import { verdictFor } from "./approvals";
 import { runSimulator } from "./simulator";
 
 export interface ToolCall {
@@ -139,6 +140,7 @@ export function toolGuide(mode: string): string {
     "latex_compile compiles a .tex file in the granted folder with this Mac's Tectonic or TeX toolchain and reports the PDF. It names the install command when no toolchain exists.",
     "Recording never starts on its own. /record start and /record stop (or record_start and record_stop) frame the screen every 5 seconds with the frontmost app named, keeping the last 20 minutes in temp; computer_history reads that timeline. Starting a recording asks first.",
     "The task VM is a disposable Alpine machine under QEMU with hardware acceleration: vm_boot brings it up (asks once; the first boot downloads ~35MB of boot files), vm_exec runs commands inside it — isolated from this Mac, discarded on vm_stop — and vm_status reports state. Nothing on this Mac is mounted.",
+    "Command rules persist in Settings → Privacy: an allow rule (word prefix, like npm or git commit) skips the approval prompt, a deny rule refuses outright, and the approval card offers Always allow for commands. No rule means the session permission mode decides.",
     "Computer use defers to the human: click, type, key, hotkey, paste, drag, move, scroll, and focus_app are refused while Secure Input holds the keyboard or while the user typed within the last two seconds. Wait a moment and retry; screenshot and clipboard_read stay available.",
     "Connector tools (Slack, Linear) need their connector switched on in Settings → Connectors and the credentials pasted there. slack_post and slack_read take a channel ID; posting asks first. linear_search takes the text to match against issue titles.",
     "Connector tools for Jira (jira_search takes JQL, jira_comment asks first), Notion (notion_search, notion_append asks first), Figma (figma_comments takes the file key from the URL), Sentry (sentry_issues for the organization), and Stripe (stripe_balance, stripe_charges, read-only) work the same way: switch the connector on and paste its credentials in Settings → Connectors.",
@@ -220,6 +222,8 @@ export interface DesktopEnv {
   stripeKey?: string;
   /** The task VM (disposable Alpine under QEMU) is switched on. */
   taskVm?: boolean;
+  /** Persistent command approval rules from Settings. */
+  commandRules?: { id: string; pattern: string; verdict: "allow" | "deny"; createdAt: number }[];
   onPlan?: (text: string) => void;
   onPlanStatus?: (status: "draft" | "review" | "approved") => void;
   onTodos?: (items: { id: string; title: string; status: "pending" | "doing" | "done" }[]) => void;
@@ -244,8 +248,19 @@ async function guardComputer(env: DesktopEnv, action: string): Promise<void> {
   }
 }
 
-async function ensureEdit(env: DesktopEnv, detail: string): Promise<void> {  if (env.fileTools === false && /^(write|run|apply|git)/.test(detail)) {
+async function ensureEdit(env: DesktopEnv, detail: string): Promise<void> {
+  if (env.fileTools === false && /^(write|run|apply|git)/.test(detail)) {
     throw new Error("File and command tools are off. Turn them on in Settings → Capabilities.");
+  }
+  // Persistent command rules run before any mode logic: a deny refuses
+  // outright, an allow skips the prompt, and no match falls through.
+  const ruleCommand = /^run\s+(.+)$/i.exec(detail.trim())?.[1];
+  if (ruleCommand && env.commandRules?.length) {
+    const verdict = verdictFor(env.commandRules, ruleCommand);
+    if (verdict === "deny") {
+      throw new Error(`A command rule denies commands starting with "${ruleCommand.trim().split(/\s+/)[0]}". Review rules in Settings → Privacy.`);
+    }
+    if (verdict === "allow") return;
   }
   const mode = env.permissionMode === "bypass" && env.allowBypass === false ? "ask" : env.permissionMode;
   if (mode === "plan") throw new Error("Plan mode only reads. Approve the plan, or switch the session out of plan, before editing.");

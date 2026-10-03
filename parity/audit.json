@@ -22,7 +22,7 @@
     {
       "class": "d",
       "how": "the parity map's deferred notes and partial limits are read as recorded incompleteness",
-      "findingsNow": 51,
+      "findingsNow": 53,
       "fixedDuringThisWork": 0
     }
   ],
@@ -391,6 +391,18 @@
       "pointer": "task-vm",
       "disposition": "deferred",
       "reason": "the VM boots, executes, and discards, but the granted folder is not mounted (files move by command) and guest network egress is unfiltered; both are the next slices."
+    },
+    {
+      "class": "d",
+      "pointer": "command-rules",
+      "disposition": "deferred",
+      "reason": "patterns are word prefixes; Codex's Starlark execpolicy also matches shell syntax and writes network rules, which needs a richer matcher than the reference's own summary suggests for a first slice."
+    },
+    {
+      "class": "d",
+      "pointer": "auto-compact",
+      "disposition": "deferred",
+      "reason": "compaction runs only with a provider key and its threshold is a fixed character estimate, not the provider's own token count."
     }
   ],
   "order": "fixed items are records of what the scan found before the fix; findingsNow is what a fresh scan reports"

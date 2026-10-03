@@ -1,5 +1,6 @@
 import type { DesignRecord, DesignSystem } from "./design";
 import type { BgTask } from "./bgtasks";
+import type { CommandRule } from "./approvals";
 
 export type Mode = "chat" | "cowork" | "code";
 export type Effort = "low" | "medium" | "high" | "xhigh" | "max";
@@ -244,6 +245,10 @@ export interface Settings {
   computerGuard: boolean;
   /** Cowork commands can run in the disposable per-task VM. */
   taskVm: boolean;
+  /** Persistent command approval rules (word-prefix patterns). */
+  commandRules: CommandRule[];
+  /** Long conversations fold into a summary automatically. */
+  autoCompact: boolean;
   githubToken: string;
   /** Slack bot token (xoxb-…) for the Slack connector tools. */
   slackToken: string;

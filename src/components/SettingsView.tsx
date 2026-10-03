@@ -487,6 +487,9 @@ function Privacy() {
       <Row label="New chats start incognito" description="Incognito chats are dropped when the app saves. They stay out of search after a reload.">
         <Switch label="New chats start incognito" checked={s.incognitoDefault} onChange={(incognitoDefault) => patch({ incognitoDefault })} />
       </Row>
+      <Row label="Compact long conversations automatically" description="Past a rough context size, older messages fold into a summary so the turn fits without asking.">
+        <Switch label="Compact long conversations automatically" checked={s.autoCompact !== false} onChange={(autoCompact) => patch({ autoCompact })} />
+      </Row>
       <Row label="Memory notes" description="Saved notes are edited on the Customize screen.">
         <button type="button" className="ghost" onClick={() => dispatch({ type: "screen", screen: "customize" })}>Open</button>
       </Row>
@@ -500,6 +503,21 @@ function Privacy() {
         <button type="button" className="ghost" onClick={() => void exportBundle(state, setNote, true)}>Export</button>
       </Row>
       {note && <p className="settings-note">{note}</p>}
+    </Section>
+    <Section title="Command rules">
+      <p className="settings-note">An allow rule lets commands starting with those words run without the approval prompt; a deny rule refuses them outright. The approval card offers Always allow for commands. The last matching rule wins.</p>
+      {(s.commandRules || []).length === 0 && <p className="muted settings-empty">No command rules saved.</p>}
+      {(s.commandRules || []).map((rule) => (
+        <div key={rule.id} className="setting-row">
+          <div className="setting-copy">
+            <div className="setting-name"><code>{rule.pattern}</code> → {rule.verdict === "allow" ? "allow" : "deny"}</div>
+            <div className="setting-desc">Saved {new Date(rule.createdAt).toLocaleDateString()}</div>
+          </div>
+          <div className="setting-control">
+            <button type="button" className="ghost" onClick={() => patch({ commandRules: (s.commandRules || []).filter((item) => item.id !== rule.id) })}>Remove</button>
+          </div>
+        </div>
+      ))}
     </Section>
   </>;
 }

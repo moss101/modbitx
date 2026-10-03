@@ -472,6 +472,21 @@ shown("a query-callback permission request is rejected", permissionRequestIsOnTh
 shown("a deferred permission request is rejected", permissionRequestIsOnTheClick(requestAfterTimeout) === false);
 shown("popup asks for the open site only", permissionRequestIsOnTheClick(popup));
 
+// ---- command rules: the approval rule engine ----
+{
+  const approvals = load("approvals.ts");
+  must("a word-prefix rule matches its command", approvals.ruleMatches("npm", "npm install left-pad") === true && approvals.ruleMatches("npm", "npmx install") === false);
+  must("multi-word rules match leading words only", approvals.ruleMatches("git commit", "git commit -m x") === true && approvals.ruleMatches("git commit", "git push") === false);
+  must("the last matching rule wins", approvals.verdictFor([
+    { id: "a", pattern: "npm", verdict: "allow", createdAt: 1 },
+    { id: "b", pattern: "npm publish", verdict: "deny", createdAt: 2 }
+  ], "npm publish -r") === "deny");
+  must("no rule falls through", approvals.verdictFor([{ id: "a", pattern: "cargo", verdict: "allow", createdAt: 1 }], "make all") === null);
+  must("an approval detail becomes a rule for run actions", approvals.ruleFromAction("run npm test")?.pattern === "npm");
+  must("non-command details make no rule", approvals.ruleFromAction("write notes.md") === null);
+  must("addRule caps and de-duplicates", approvals.addRule([{ id: "a", pattern: "npm", verdict: "allow", createdAt: 1 }], { id: "b", pattern: "npm", verdict: "allow", createdAt: 2 }).length === 1);
+}
+
 // ---- wake scheduling: the next occurrence finder feeds pmset ----
 {
   // pmset reads local time, so assert local fields, never the UTC ISO text.

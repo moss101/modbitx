@@ -24,7 +24,9 @@
       "Chat",
       "Chrome",
       "Code",
+      "Command rules",
       "comments",
+      "Compaction",
       "Compare versions",
       "Computer history",
       "Computer use",
@@ -41,6 +43,7 @@
       "Dispatch",
       "Edit sidebar",
       "Effort",
+      "Execpolicy",
       "Export as",
       "Extensions",
       "Find",
@@ -1595,6 +1598,44 @@
       ],
       "evidence": "scripts/local-jobs-check.cjs cowork",
       "limit": "A disposable Alpine machine boots under QEMU with hardware acceleration, takes vm_exec commands over SSH, and discards everything on stop; the granted folder is not mounted yet and guest network egress is unfiltered."
+    },
+    {
+      "id": "command-rules",
+      "name": "Command approval rules",
+      "group": "Code",
+      "status": "partial",
+      "module": "src/approvals.ts",
+      "symbol": "verdictFor",
+      "how": {
+        "kind": "settings",
+        "label": "Command rules"
+      },
+      "covers": [
+        "execpolicy",
+        "always allow",
+        "auto approve",
+        "rules"
+      ],
+      "evidence": "scripts/local-jobs-check.cjs rules",
+      "limit": "Word-prefix allow/deny rules persist in Settings \u2192 Privacy, consulted before any permission mode, with an Always-allow action on the approval card; patterns are prefixes only (no Codex-style shell-aware matching or network rules yet)."
+    },
+    {
+      "id": "auto-compact",
+      "name": "Auto-compaction",
+      "group": "Threads",
+      "status": "partial",
+      "module": "src/components/ThreadView.tsx",
+      "symbol": "summarizeHistory",
+      "how": {
+        "kind": "settings",
+        "label": "Compact long conversations automatically"
+      },
+      "covers": [
+        "compact",
+        "compaction"
+      ],
+      "evidence": "scripts/local-jobs-check.cjs turn",
+      "limit": "Past a rough character size the older messages fold into a summary before the turn, keeping the last four; the threshold is fixed and the compaction cannot be asserted headlessly without a provider key."
     }
   ]
 }
