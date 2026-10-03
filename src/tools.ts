@@ -138,8 +138,10 @@ export function toolGuide(mode: string): string {
     "search_repo runs the bundled ripgrep over the granted folder: give the pattern in selector. It respects .gitignore and is the fast way to find where something is defined.",
     "latex_compile compiles a .tex file in the granted folder with this Mac's Tectonic or TeX toolchain and reports the PDF. It names the install command when no toolchain exists.",
     "Recording never starts on its own. /record start and /record stop (or record_start and record_stop) frame the screen every 5 seconds with the frontmost app named, keeping the last 20 minutes in temp; computer_history reads that timeline. Starting a recording asks first.",
+    "The task VM is a disposable Alpine machine under QEMU with hardware acceleration: vm_boot brings it up (asks once; the first boot downloads ~35MB of boot files), vm_exec runs commands inside it — isolated from this Mac, discarded on vm_stop — and vm_status reports state. Nothing on this Mac is mounted.",
     "Computer use defers to the human: click, type, key, hotkey, paste, drag, move, scroll, and focus_app are refused while Secure Input holds the keyboard or while the user typed within the last two seconds. Wait a moment and retry; screenshot and clipboard_read stay available.",
     "Connector tools (Slack, Linear) need their connector switched on in Settings → Connectors and the credentials pasted there. slack_post and slack_read take a channel ID; posting asks first. linear_search takes the text to match against issue titles.",
+    "Connector tools for Jira (jira_search takes JQL, jira_comment asks first), Notion (notion_search, notion_append asks first), Figma (figma_comments takes the file key from the URL), Sentry (sentry_issues for the organization), and Stripe (stripe_balance, stripe_charges, read-only) work the same way: switch the connector on and paste its credentials in Settings → Connectors.",
     "page_* acts inside the built-in browser. After a page action, a new picture of the page and its controls are attached. A file the page downloads is saved into the granted folder, or Downloads if no folder is granted. page_upload sets a file input from a path inside that folder. Alerts are dismissed. A confirm() is denied unless page_dialog accept was called first, and the dialog text is included in the result. screenshot, focus_app, click, type, and key are computer use. focus_app uses background mode unless the user asked to take over the screen. git, ssh, write_file, and run follow the session permission mode. Plan mode refuses edits. Auto lets Jev 1.13 allow a safe edit and asks otherwise. git branch uses the branch prefix from Settings. git worktree creates a folder under the worktree location in Settings → Code. doc_write content that starts with APPEND and a newline keeps the existing file and adds to it. kind pdf writes one page of text."
   ].join("\n");
 }
@@ -203,6 +205,21 @@ export interface DesktopEnv {
   /** The Linear connector is switched on, with an API key stored. */
   linearOn?: boolean;
   linearKey?: string;
+  jiraOn?: boolean;
+  jiraDomain?: string;
+  jiraEmail?: string;
+  jiraToken?: string;
+  notionOn?: boolean;
+  notionToken?: string;
+  figmaOn?: boolean;
+  figmaToken?: string;
+  sentryOn?: boolean;
+  sentryToken?: string;
+  sentryOrg?: string;
+  stripeOn?: boolean;
+  stripeKey?: string;
+  /** The task VM (disposable Alpine under QEMU) is switched on. */
+  taskVm?: boolean;
   onPlan?: (text: string) => void;
   onPlanStatus?: (status: "draft" | "review" | "approved") => void;
   onTodos?: (items: { id: string; title: string; status: "pending" | "doing" | "done" }[]) => void;
@@ -520,6 +537,33 @@ async function runToolInner(call: ToolCall, env: DesktopEnv): Promise<ToolResult
         const result = await api.runCommand(folder, call.command || "");
         return { call, ok: result.code === 0, output: `$ ${call.command}\nexit ${result.code}\n${result.stdout}${result.stderr ? `\n${result.stderr}` : ""}` };
       }
+      case "vm_status": {
+        if (env.taskVm === false) return { call, ok: false, output: "The task VM is off. Turn it on in Settings → Capabilities." };
+        if (!api?.vmStatus) return { call, ok: false, output: "The VM bridge is unavailable in this window." };
+        const state = await api.vmStatus();
+        if (!state.supported) return { call, ok: false, output: "The VM needs QEMU (brew install qemu). It is not installed." };
+        return { call, ok: true, output: `${state.running ? `Running on port ${state.port}` : state.prepared ? "Prepared and stopped" : "Not prepared — boot will download the boot files first"}.` };
+      }
+      case "vm_boot": {
+        if (env.taskVm === false) return { call, ok: false, output: "The task VM is off. Turn it on in Settings → Capabilities." };
+        if (!api?.vmBoot) return { call, ok: false, output: "The VM bridge is unavailable in this window." };
+        await ensureEdit(env, "boot the disposable task VM");
+        const boot = await api.vmBoot();
+        return { call, ok: boot.ok, output: boot.ok ? `The VM is up on port ${boot.port}. Commands run with vm_exec inside a disposable Alpine machine — nothing touches this Mac.` : boot.error || "The boot failed." };
+      }
+      case "vm_exec": {
+        if (env.taskVm === false) return { call, ok: false, output: "The task VM is off. Turn it on in Settings → Capabilities." };
+        if (!api?.vmExec) return { call, ok: false, output: "The VM bridge is unavailable in this window." };
+        const command = String(call.command || call.content || "");
+        if (!command) return { call, ok: false, output: "vm_exec needs the command." };
+        const out = await api.vmExec(command);
+        return { call, ok: true, output: `$ ${command}\n${out.slice(0, 8000) || "(no output)"}` };
+      }
+      case "vm_stop": {
+        if (!api?.vmStop) return { call, ok: false, output: "The VM bridge is unavailable in this window." };
+        const stopped = await api.vmStop();
+        return { call, ok: true, output: stopped.note };
+      }
       case "slack_post": {
         if (env.slackOn !== true) return { call, ok: false, output: "The Slack connector is off. Turn it on in Settings → Connectors and paste a bot token." };
         if (!env.slackToken) return { call, ok: false, output: "No Slack bot token is stored. Paste one in Settings → Connectors." };
@@ -582,6 +626,140 @@ async function runToolInner(call: ToolCall, env: DesktopEnv): Promise<ToolResult
           return { call, ok: true, output: rows.map((row) => `${row.identifier} ${row.title} — ${row.state?.name || "?"}${row.assignee ? ` · ${row.assignee.name}` : ""}`).join("\n").slice(0, 6000) };
         } catch {
           return { call, ok: false, output: `Linear answered ${found.status} with an unreadable body.` };
+        }
+      }
+      case "jira_search": {
+        if (env.jiraOn !== true) return { call, ok: false, output: "The Jira connector is off. Fill your site, email, and API token in Settings → Connectors." };
+        if (!env.jiraDomain || !env.jiraEmail || !env.jiraToken) return { call, ok: false, output: "Jira needs the site, email, and API token in Settings → Connectors." };
+        const jql = String(call.text || call.selector || "order by updated DESC");
+        const auth = btoa(`${env.jiraEmail}:${env.jiraToken}`);
+        const search = await api.httpJson({
+          url: `https://${env.jiraDomain}/rest/api/3/search?jql=${encodeURIComponent(jql.slice(0, 400))}&maxResults=10&fields=key,summary,status`,
+          method: "GET",
+          headers: { Authorization: `Basic ${auth}`, Accept: "application/json" }
+        });
+        try {
+          const parsed = JSON.parse(search.text) as { issues?: { key: string; fields?: { summary?: string; status?: { name?: string } } }[]; errorMessages?: string[] };
+          if (parsed.errorMessages?.length) return { call, ok: false, output: `Jira said: ${parsed.errorMessages[0].slice(0, 200)}` };
+          const rows = parsed.issues || [];
+          if (!rows.length) return { call, ok: true, output: "No Jira issues match that query." };
+          return { call, ok: true, output: rows.map((row) => `${row.key} ${row.fields?.summary || ""} — ${row.fields?.status?.name || "?"}`).join("\n").slice(0, 6000) };
+        } catch {
+          return { call, ok: false, output: `Jira answered ${search.status} with an unreadable body.` };
+        }
+      }
+      case "jira_comment": {
+        if (env.jiraOn !== true) return { call, ok: false, output: "The Jira connector is off. Fill your site, email, and API token in Settings → Connectors." };
+        const issueKey = String(call.target || "");
+        const text = String(call.content || call.text || "");
+        if (!issueKey || !text) return { call, ok: false, output: "jira_comment needs the issue key in target and the comment in content." };
+        await ensureEdit(env, `comment on Jira issue ${issueKey}`);
+        const auth = btoa(`${env.jiraEmail}:${env.jiraToken}`);
+        const sent = await api.httpJson({
+          url: `https://${env.jiraDomain}/rest/api/3/issue/${encodeURIComponent(issueKey)}/comment`,
+          method: "POST",
+          headers: { Authorization: `Basic ${auth}`, "Content-Type": "application/json", Accept: "application/json" },
+          body: { body: { type: "doc", version: 1, content: [{ type: "paragraph", content: [{ type: "text", text: text.slice(0, 3000) }] }] } }
+        });
+        return { call, ok: sent.status >= 200 && sent.status < 300, output: sent.status < 300 ? `Commented on ${issueKey}.` : `Jira answered ${sent.status}: ${sent.text.slice(0, 200)}` };
+      }
+      case "notion_search": {
+        if (env.notionOn !== true) return { call, ok: false, output: "The Notion connector is off. Paste an integration token in Settings → Connectors and share pages with it." };
+        if (!env.notionToken) return { call, ok: false, output: "No Notion integration token is stored. Paste one in Settings → Connectors." };
+        const term = String(call.text || call.selector || "");
+        const search = await api.httpJson({
+          url: "https://api.notion.com/v1/search",
+          method: "POST",
+          headers: { Authorization: `Bearer ${env.notionToken}`, "Notion-Version": "2022-06-28", "Content-Type": "application/json" },
+          body: { query: term.slice(0, 120), page_size: 10 }
+        });
+        try {
+          const parsed = JSON.parse(search.text) as { results?: { id: string; url?: string; properties?: Record<string, { title?: { plain_text?: string }[] }> }[] };
+          const rows = (parsed.results || []).map((row) => {
+            const titleProp = Object.values(row.properties || {}).find((prop) => Array.isArray(prop.title));
+            const title = titleProp?.title?.[0]?.plain_text || row.id;
+            return `${title} — ${row.url || row.id}`;
+          });
+          return { call, ok: true, output: rows.length ? rows.join("\n").slice(0, 6000) : "No Notion pages matched." };
+        } catch {
+          return { call, ok: false, output: `Notion answered ${search.status} with an unreadable body.` };
+        }
+      }
+      case "notion_append": {
+        if (env.notionOn !== true) return { call, ok: false, output: "The Notion connector is off. Paste an integration token in Settings → Connectors and share pages with it." };
+        const pageId = String(call.target || "");
+        const text = String(call.content || call.text || "");
+        if (!pageId || !text) return { call, ok: false, output: "notion_append needs a page ID in target and the text in content." };
+        await ensureEdit(env, "append to a Notion page");
+        const sent = await api.httpJson({
+          url: `https://api.notion.com/v1/blocks/${encodeURIComponent(pageId)}/children`,
+          method: "PATCH",
+          headers: { Authorization: `Bearer ${env.notionToken}`, "Notion-Version": "2022-06-28", "Content-Type": "application/json" },
+          body: { children: [{ object: "block", type: "paragraph", paragraph: { rich_text: [{ type: "text", text: { content: text.slice(0, 2000) } }] } }] }
+        });
+        return { call, ok: sent.status >= 200 && sent.status < 300, output: sent.status < 300 ? "Appended to the Notion page." : `Notion answered ${sent.status}: ${sent.text.slice(0, 200)}` };
+      }
+      case "figma_comments": {
+        if (env.figmaOn !== true) return { call, ok: false, output: "The Figma connector is off. Paste a personal access token in Settings → Connectors." };
+        const fileKey = String(call.target || "");
+        if (!fileKey) return { call, ok: false, output: "figma_comments needs the file key from the Figma URL in target." };
+        const read = await api.httpJson({
+          url: `https://api.figma.com/v1/files/${encodeURIComponent(fileKey)}/comments`,
+          method: "GET",
+          headers: { "X-Figma-Token": env.figmaToken || "" }
+        });
+        try {
+          const parsed = JSON.parse(read.text) as { comments?: { message?: string; user?: { handle?: string } }[] };
+          const rows = (parsed.comments || []).map((comment) => `${comment.user?.handle || "?"}: ${(comment.message || "").slice(0, 200)}`);
+          return { call, ok: true, output: rows.length ? rows.join("\n").slice(0, 6000) : "No comments on that file." };
+        } catch {
+          return { call, ok: false, output: `Figma answered ${read.status} with an unreadable body.` };
+        }
+      }
+      case "sentry_issues": {
+        if (env.sentryOn !== true) return { call, ok: false, output: "The Sentry connector is off. Paste an auth token and organization slug in Settings → Connectors." };
+        if (!env.sentryToken || !env.sentryOrg) return { call, ok: false, output: "Sentry needs an auth token and organization slug in Settings → Connectors." };
+        const read = await api.httpJson({
+          url: `https://sentry.io/api/0/organizations/${encodeURIComponent(env.sentryOrg)}/issues/?limit=10&sort=frequency`,
+          method: "GET",
+          headers: { Authorization: `Bearer ${env.sentryToken}` }
+        });
+        try {
+          const parsed = JSON.parse(read.text) as { shortId?: string; title?: string; count?: string | number; level?: string; project?: { slug?: string } }[];
+          const rows = (Array.isArray(parsed) ? parsed : []).map((issue) => `${issue.shortId || "?"} ${issue.title || ""} — ${issue.level || "?"} ×${issue.count ?? "?"}`);
+          return { call, ok: true, output: rows.length ? rows.join("\n").slice(0, 6000) : "No open Sentry issues." };
+        } catch {
+          return { call, ok: false, output: `Sentry answered ${read.status} with an unreadable body.` };
+        }
+      }
+      case "stripe_balance": {
+        if (env.stripeOn !== true) return { call, ok: false, output: "The Stripe connector is off. Paste a secret key in Settings → Connectors." };
+        const read = await api.httpJson({
+          url: "https://api.stripe.com/v1/balance",
+          method: "GET",
+          headers: { Authorization: `Bearer ${env.stripeKey}` }
+        });
+        try {
+          const parsed = JSON.parse(read.text) as { available?: { amount?: number; currency?: string }[]; pending?: { amount?: number; currency?: string }[] };
+          const money = (rows: { amount?: number; currency?: string }[] = []) => rows.map((row) => `${((row.amount || 0) / 100).toFixed(2)} ${String(row.currency || "").toUpperCase()}`).join(", ") || "0";
+          return { call, ok: true, output: `Available: ${money(parsed.available)}. Pending: ${money(parsed.pending)}.` };
+        } catch {
+          return { call, ok: false, output: `Stripe answered ${read.status} with an unreadable body.` };
+        }
+      }
+      case "stripe_charges": {
+        if (env.stripeOn !== true) return { call, ok: false, output: "The Stripe connector is off. Paste a secret key in Settings → Connectors." };
+        const read = await api.httpJson({
+          url: `https://api.stripe.com/v1/charges?limit=${Math.min(10, Math.max(1, Number(call.limit) || 5))}`,
+          method: "GET",
+          headers: { Authorization: `Bearer ${env.stripeKey}` }
+        });
+        try {
+          const parsed = JSON.parse(read.text) as { data?: { id: string; description?: string; amount?: number; currency?: string; paid?: boolean }[] };
+          const rows = (parsed.data || []).map((charge) => `${charge.id} ${charge.description || "(no description)"} — ${((charge.amount || 0) / 100).toFixed(2)} ${String(charge.currency || "").toUpperCase()}${charge.paid ? " paid" : " unpaid"}`);
+          return { call, ok: true, output: rows.length ? rows.join("\n").slice(0, 6000) : "No charges recorded." };
+        } catch {
+          return { call, ok: false, output: `Stripe answered ${read.status} with an unreadable body.` };
         }
       }
       case "messages_recent": {

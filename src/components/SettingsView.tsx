@@ -667,6 +667,9 @@ function Capabilities() {
         <Row label="Computer use defers to your typing" description="Clicks, keystrokes, and pastes are refused while you type or while Secure Input holds a password field.">
           <Switch label="Computer use defers to your typing" checked={s.computerGuard !== false} onChange={(computerGuard) => patch({ computerGuard })} />
         </Row>
+        <Row label="Run commands in the task VM" description="vm_boot starts a disposable Alpine machine under QEMU; vm_exec runs inside it, isolated from this Mac, and vm_stop discards everything. First boot downloads the boot files.">
+          <Switch label="Run commands in the task VM" checked={s.taskVm !== false} onChange={(taskVm) => patch({ taskVm })} />
+        </Row>
       </Section>
       <Section title="Workspace memory">
         <Row label="Memory for people on this Mac’s workspace" description="These notes join Chat, Cowork, and Code when this is on. Owners and admins edit them. Members can read them.">
@@ -835,6 +838,24 @@ function Connectors() {
       </Row>
       <Row label="Linear API key" description="Personal key from linear.app/settings/security. Powers linear_search and linear_update. Export leaves this blank.">
         <input className="setting-input" aria-label="Linear API key" type="password" value={s.linearKey || ""} onChange={(e) => patch({ linearKey: e.target.value })} />
+      </Row>
+      <Row label="Jira site, email, and API token" description="yourorg.atlassian.net, the account email, and a token from id.atlassian.com. Powers jira_search and jira_comment. Export leaves these blank.">
+        <input className="setting-input" aria-label="Jira site" placeholder="yourorg.atlassian.net" value={s.jiraDomain || ""} onChange={(e) => patch({ jiraDomain: e.target.value })} />
+        <input className="setting-input" aria-label="Jira email" value={s.jiraEmail || ""} onChange={(e) => patch({ jiraEmail: e.target.value })} />
+        <input className="setting-input" aria-label="Jira API token" type="password" value={s.jiraToken || ""} onChange={(e) => patch({ jiraToken: e.target.value })} />
+      </Row>
+      <Row label="Notion integration token" description="ntn-… from an internal integration you create; share pages with it. Powers notion_search and notion_append. Export leaves this blank.">
+        <input className="setting-input" aria-label="Notion integration token" type="password" value={s.notionToken || ""} onChange={(e) => patch({ notionToken: e.target.value })} />
+      </Row>
+      <Row label="Figma personal access token" description="From Figma account settings. Powers figma_comments. Export leaves this blank.">
+        <input className="setting-input" aria-label="Figma token" type="password" value={s.figmaToken || ""} onChange={(e) => patch({ figmaToken: e.target.value })} />
+      </Row>
+      <Row label="Sentry auth token and organization" description="An auth token from Sentry settings and the organization slug. Powers sentry_issues. Export leaves these blank.">
+        <input className="setting-input" aria-label="Sentry token" type="password" value={s.sentryToken || ""} onChange={(e) => patch({ sentryToken: e.target.value })} />
+        <input className="setting-input" aria-label="Sentry organization" placeholder="org slug" value={s.sentryOrg || ""} onChange={(e) => patch({ sentryOrg: e.target.value })} />
+      </Row>
+      <Row label="Stripe secret key" description="sk_… — the tools only read balance and charges. Powers stripe_balance and stripe_charges. Export leaves this blank.">
+        <input className="setting-input" aria-label="Stripe secret key" type="password" value={s.stripeKey || ""} onChange={(e) => patch({ stripeKey: e.target.value })} />
       </Row>
       <Row label="Calendar" description="Reads upcoming events through this Mac.">
         <button type="button" className="ghost" onClick={async () => setNote((await window.modbitx?.calendarEvents())?.text || "")}>Read Calendar</button>

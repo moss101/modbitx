@@ -25,6 +25,8 @@ Beyond the earlier surfaces (see `PARITY-ANALYSIS.md`), this build adds, all loc
 - **Simulator live view** — the pane can refresh about once a second through the same sim bridge the tools use.
 - **Package install from .zip** — Extensions → Plugin packages accepts a zip with `plugin.json` at its root and unpacks it with this Mac's own expander.
 
+- **Task VM** — `vm_boot` starts a disposable Alpine machine under QEMU with hardware acceleration, `vm_exec` runs commands inside it isolated from this Mac, and `vm_stop` discards everything. Boot files download on first use; the granted folder is not mounted yet and guest network egress is unfiltered (both recorded as the next slices).
+
 One honest negative: a seatbelt write-clamp for commands (`sandbox-exec`) was prototyped and refused by this macOS (`sandbox_apply: Operation not permitted` — third-party sandboxing now needs the endpoint-security entitlement), so command sandboxing stays deferred with that evidence recorded in the parity map.
 
 ## Verification

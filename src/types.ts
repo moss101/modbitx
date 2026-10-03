@@ -242,11 +242,26 @@ export interface Settings {
   computerMode: ComputerMode;
   /** Computer use defers while you are typing or Secure Input holds the keyboard. */
   computerGuard: boolean;
+  /** Cowork commands can run in the disposable per-task VM. */
+  taskVm: boolean;
   githubToken: string;
   /** Slack bot token (xoxb-…) for the Slack connector tools. */
   slackToken: string;
   /** Linear personal API key for the Linear connector tools. */
   linearKey: string;
+  /** Jira site (yourorg.atlassian.net), account email, and API token. */
+  jiraDomain: string;
+  jiraEmail: string;
+  jiraToken: string;
+  /** Notion integration token (ntn-…). */
+  notionToken: string;
+  /** Figma personal access token. */
+  figmaToken: string;
+  /** Sentry auth token and organization slug. */
+  sentryToken: string;
+  sentryOrg: string;
+  /** Stripe secret key (sk_…), read-only tools. */
+  stripeKey: string;
   sshTarget: string;
   remoteControl: boolean;
   pairingCode: string;

@@ -90,7 +90,7 @@ const DESKTOP_TOOLS = [
   "list_dir", "read_file", "write_file", "run", "browse", "page_text", "page_dom", "page_click", "page_fill", "page_press", "page_scroll", "page_choose", "page_upload", "page_dialog", "page_shot",
   "screenshot", "apps", "focus_app", "click", "mouse_move", "drag", "type", "key", "hotkey", "scroll", "wait", "clipboard_read", "paste", "git", "apply_patch", "ssh", "doc_read", "doc_write", "rewind", "mcp",
   "browser_task", "design_review", "sim_list", "sim_boot", "sim_shot", "sim_tap", "sim_swipe", "sim_text", "sim_button", "sim_open", "sim_install", "sim_launch", "sim_shutdown",
-  "write_plan", "exit_plan", "ask_user", "todo", "memory_write", "memory_append", "memory_delete", "scratchpad_read", "scratchpad_update", "messages_recent", "messages_send", "search_repo", "latex_compile", "record_start", "record_stop", "computer_history", "slack_post", "slack_read", "linear_search"
+  "write_plan", "exit_plan", "ask_user", "todo", "memory_write", "memory_append", "memory_delete", "scratchpad_read", "scratchpad_update", "messages_recent", "messages_send", "search_repo", "latex_compile", "record_start", "record_stop", "computer_history", "slack_post", "slack_read", "linear_search", "jira_search", "jira_comment", "notion_search", "notion_append", "figma_comments", "sentry_issues", "stripe_balance", "stripe_charges", "vm_status", "vm_boot", "vm_exec", "vm_stop"
 ].map((name) => ({
   type: "function",
   function: {

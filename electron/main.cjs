@@ -3,6 +3,7 @@ const path = require("path");
 const fs = require("fs");
 const { execFile, spawn } = require("child_process");
 const { attachPlatform, readDocument, writeDocument } = require("./platform.cjs");
+const vm = require("./vm.cjs");
 const { prepareHook } = require("./hook-guard.cjs");
 const { prepareQuestions } = require("./plan-question.cjs");
 const { prepareSession } = require("./session-question.cjs");
@@ -337,6 +338,13 @@ app.on("will-quit", () => globalShortcut.unregisterAll());
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
+
+/** The per-task disposable Linux VM. */
+ipcMain.handle("vm:status", () => vm.status(app.getPath("userData")));
+ipcMain.handle("vm:prepare", () => vm.prepare(app.getPath("userData")));
+ipcMain.handle("vm:boot", () => vm.boot(app.getPath("userData")));
+ipcMain.handle("vm:exec", (_e, command) => vm.exec(app.getPath("userData"), command));
+ipcMain.handle("vm:stop", () => vm.stop());
 
 /** Generic JSON bridge for connector REST APIs (Slack, Linear, Jira, …). */
 ipcMain.handle("http:json", async (_e, spec) => {

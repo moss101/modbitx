@@ -206,6 +206,12 @@ declare global {
       popoutThread: (threadId: string) => Promise<boolean>;
       /** Typing/Secure-Input guard, read from the login session without extra permissions. */
       guardCheck: () => Promise<{ secureInput: boolean; sinceKey: number; sinceMouse: number; error?: string }>;
+      /** The per-task disposable Linux VM under QEMU/HVF. */
+      vmStatus: () => Promise<{ supported: boolean; running: boolean; port: number; prepared: boolean; files: { name: string; present: boolean }[] }>;
+      vmPrepare: () => Promise<{ prepared: boolean; pubKey: string }>;
+      vmBoot: () => Promise<{ ok: boolean; port?: number; note?: string; error?: string }>;
+      vmExec: (command: string) => Promise<string>;
+      vmStop: () => Promise<{ ok: boolean; note: string }>;
       /** Generic https JSON bridge used by connector tools; the renderer gates every call. */
       httpJson: (spec: { url: string; method?: string; headers?: Record<string, string>; body?: unknown }) => Promise<{ status: number; text: string }>;
       /** Schedules one wake with admin rights; macOS asks for the password itself. */

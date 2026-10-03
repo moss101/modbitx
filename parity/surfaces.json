@@ -67,6 +67,7 @@
       "Projects",
       "Publish",
       "Pull requests",
+      "QEMU",
       "Quick actions",
       "Quote reply",
       "Read aloud",
@@ -90,6 +91,7 @@
       "Skills",
       "Slack",
       "Slides",
+      "Task VM",
       "Team",
       "Terminal",
       "This computer",
@@ -1241,7 +1243,7 @@
       "how": {
         "kind": "none"
       },
-      "note": "A per-task filesystem and network sandbox needs a platform sandbox engine the app does not bundle. Attempted 2026-10-03: a seatbelt write-clamp via sandbox-exec was prototyped and refused by this macOS (sandbox_apply: Operation not permitted \u2014 third-party use now needs the endpoint-security entitlement), so the honest path is a helper with that entitlement or a VM; tasks meanwhile run on this Mac behind approvals."
+      "note": "Command sandboxing moves forward on the user's choice of a full VM per task: the disposable Alpine VM under QEMU/HVF is implemented (vm_boot/vm_exec/vm_stop, see the task-vm surface) and the seatbelt path stays blocked (sandbox_apply refused without the endpoint-security entitlement). What the VM does not yet do: mount the granted folder (files are copied by command), proxy or restrict guest network egress, or cap resources."
     },
     {
       "id": "scratchpad",
@@ -1574,6 +1576,25 @@
       },
       "evidence": "scripts/local-jobs-check.cjs connectors",
       "limit": "linear_search queries Linear's GraphQL API with a user API key, gated by the connector toggle; live Linear calls need the user's key and are not asserted."
+    },
+    {
+      "id": "task-vm",
+      "name": "Task VM sandbox",
+      "group": "Cowork",
+      "status": "partial",
+      "module": "electron/vm.cjs",
+      "symbol": "boot",
+      "how": {
+        "kind": "settings",
+        "label": "Run commands in the task VM"
+      },
+      "covers": [
+        "virtual machine",
+        "per task",
+        "qemu"
+      ],
+      "evidence": "scripts/local-jobs-check.cjs cowork",
+      "limit": "A disposable Alpine machine boots under QEMU with hardware acceleration, takes vm_exec commands over SSH, and discards everything on stop; the granted folder is not mounted yet and guest network egress is unfiltered."
     }
   ]
 }
