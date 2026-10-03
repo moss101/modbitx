@@ -664,6 +664,9 @@ function Capabilities() {
         <Row label="Allow file writes and commands" description="Reading a granted folder still works when writes are off. Computer use, the browser, and simulators have their own switches.">
           <Switch label="Allow file writes and commands" checked={s.fileTools !== false} onChange={(fileTools) => patch({ fileTools })} />
         </Row>
+        <Row label="Computer use defers to your typing" description="Clicks, keystrokes, and pastes are refused while you type or while Secure Input holds a password field.">
+          <Switch label="Computer use defers to your typing" checked={s.computerGuard !== false} onChange={(computerGuard) => patch({ computerGuard })} />
+        </Row>
       </Section>
       <Section title="Workspace memory">
         <Row label="Memory for people on this Mac’s workspace" description="These notes join Chat, Cowork, and Code when this is on. Owners and admins edit them. Members can read them.">
@@ -826,6 +829,12 @@ function Connectors() {
       </Row>
       <Row label="Sign in to GitHub" description="Calls GitHub with the token stored here.">
         <button type="button" className="ghost" onClick={async () => setNote((await window.modbitx?.github(s.githubToken, "/user"))?.body || "No response")}>Sign in</button>
+      </Row>
+      <Row label="Slack bot token" description="xoxb-… from a Slack app you create, with chat:write and channels:history. Powers slack_post and slack_read. Export leaves this blank.">
+        <input className="setting-input" aria-label="Slack bot token" type="password" value={s.slackToken || ""} onChange={(e) => patch({ slackToken: e.target.value })} />
+      </Row>
+      <Row label="Linear API key" description="Personal key from linear.app/settings/security. Powers linear_search and linear_update. Export leaves this blank.">
+        <input className="setting-input" aria-label="Linear API key" type="password" value={s.linearKey || ""} onChange={(e) => patch({ linearKey: e.target.value })} />
       </Row>
       <Row label="Calendar" description="Reads upcoming events through this Mac.">
         <button type="button" className="ghost" onClick={async () => setNote((await window.modbitx?.calendarEvents())?.text || "")}>Read Calendar</button>

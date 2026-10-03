@@ -204,6 +204,12 @@ declare global {
         stateFile: string;
       }>;
       popoutThread: (threadId: string) => Promise<boolean>;
+      /** Typing/Secure-Input guard, read from the login session without extra permissions. */
+      guardCheck: () => Promise<{ secureInput: boolean; sinceKey: number; sinceMouse: number; error?: string }>;
+      /** Generic https JSON bridge used by connector tools; the renderer gates every call. */
+      httpJson: (spec: { url: string; method?: string; headers?: Record<string, string>; body?: unknown }) => Promise<{ status: number; text: string }>;
+      /** Schedules one wake with admin rights; macOS asks for the password itself. */
+      scheduleWake: (iso: string) => Promise<{ ok: boolean; wake: string }>;
       /** Reads recent Messages chats through AppleScript; macOS asks once for Automation permission. */
       messagesRead: (limit?: number) => Promise<string>;
       messagesSend: (target: string, text: string) => Promise<string>;

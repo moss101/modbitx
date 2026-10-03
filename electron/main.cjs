@@ -266,6 +266,22 @@ function mouseBin() {
   return path.join(app.getPath("userData"), "modbitx-mouse");
 }
 
+function guardBin() {
+  return path.join(app.getPath("userData"), "modbitx-guard");
+}
+
+function ensureGuardBin() {
+  const bin = guardBin();
+  if (fs.existsSync(bin)) return Promise.resolve(bin);
+  const source = path.join(__dirname, "guard.swift");
+  return new Promise((resolve, reject) => {
+    execFile("swiftc", ["-O", source, "-o", bin], { timeout: 120000 }, (err, _stdout, stderr) => {
+      if (err) reject(new Error(String(stderr || err.message).slice(0, 500)));
+      else resolve(bin);
+    });
+  });
+}
+
 function ensureMouseBin() {
   const bin = mouseBin();
   if (fs.existsSync(bin)) return Promise.resolve(bin);
@@ -320,6 +336,67 @@ app.whenReady().then(() => {
 app.on("will-quit", () => globalShortcut.unregisterAll());
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
+});
+
+/** Generic JSON bridge for connector REST APIs (Slack, Linear, Jira, …). */
+ipcMain.handle("http:json", async (_e, spec) => {
+  const url = String(spec?.url || "");
+  let parsed;
+  try { parsed = new URL(url); } catch { throw new Error("That is not a URL."); }
+  if (!/^https:$/.test(parsed.protocol)) throw new Error("Connector calls are https only.");
+  const method = String(spec?.method || "GET").toUpperCase();
+  if (!/^(GET|POST|PUT|PATCH|DELETE)$/.test(method)) throw new Error(`Unsupported method ${method}.`);
+  const headers = {};
+  for (const [key, value] of Object.entries(spec?.headers || {})) {
+    if (typeof key === "string" && typeof value === "string" && key.length < 80) headers[key] = value.slice(0, 2000);
+  }
+  let body = spec?.body;
+  if (body !== undefined && typeof body !== "string") body = JSON.stringify(body);
+  if (body !== undefined && String(body).length > 200_000) throw new Error("That connector body is larger than 200 KB.");
+  const response = await fetch(parsed.toString(), { method, headers, body: method === "GET" ? undefined : body });
+  const text = (await response.text().catch(() => "")).slice(0, 100_000);
+  return { status: response.status, text };
+});
+
+/** The typing/Secure-Input guard, from the small Swift helper. */
+ipcMain.handle("guard:check", async () => {
+  try {
+    const bin = await ensureGuardBin();
+    const result = await new Promise((resolve, reject) => {
+      execFile(bin, ["check"], { timeout: 5000 }, (err, stdout) => {
+        if (err) reject(new Error(String(stderr2(err, stdout)).slice(0, 200)));
+        else resolve(stdout);
+      });
+    });
+    return JSON.parse(result.trim());
+  } catch (error) {
+    return { secureInput: false, sinceKey: 999, sinceMouse: 999, error: String(error?.message || error).slice(0, 160) };
+  }
+});
+
+function stderr2(err, stdout) {
+  return err?.message || stdout || "the guard helper failed";
+}
+
+/** Schedules one wake with admin rights; macOS asks for the password itself. */
+ipcMain.handle("wake:schedule", async (_e, iso) => {
+  const when = new Date(String(iso || ""));
+  if (Number.isNaN(when.getTime())) throw new Error("Give a valid wake time.");
+  if (when.getTime() < Date.now() + 60_000) throw new Error("Pick a wake at least a minute in the future.");
+  // pmset reads MM/DD/YYYY HH:MM:SS in local time.
+  const pad = (n) => String(n).padStart(2, "0");
+  const stamp = `${pad(when.getMonth() + 1)}/${pad(when.getDate())}/${when.getFullYear()} ${pad(when.getHours())}:${pad(when.getMinutes())}:${pad(when.getSeconds())}`;
+  const result = await new Promise((resolve) => {
+    execFile("osascript", ["-e", `do shell script "pmset schedule wake \\"${stamp}\\"" with administrator privileges`], { timeout: 120000 }, (err, stdout, stderr) => {
+      resolve({ err, stdout, stderr });
+    });
+  });
+  if (result.err) {
+    const cause = `${result.stderr || result.stdout || ""}`.trim();
+    if (/user canceled|canceled/i.test(cause)) throw new Error("You cancelled the admin prompt, so no wake was scheduled.");
+    throw new Error(`pmset refused: ${cause.slice(0, 200)}`);
+  }
+  return { ok: true, wake: stamp };
 });
 
 ipcMain.handle("dialog:folder", async () => {

@@ -472,6 +472,15 @@ shown("a query-callback permission request is rejected", permissionRequestIsOnTh
 shown("a deferred permission request is rejected", permissionRequestIsOnTheClick(requestAfterTimeout) === false);
 shown("popup asks for the open site only", permissionRequestIsOnTheClick(popup));
 
+// ---- wake scheduling: the next occurrence finder feeds pmset ----
+{
+  const saturday = new Date(2026, 9, 3, 10, 0);
+  must("a daily task's next run is the same morning", jobs.nextDueOn("09:00", [], new Date(2026, 9, 3, 8, 0))?.startsWith("2026-10-03T09:00") === true);
+  must("a past slot rolls to the next morning", jobs.nextDueOn("09:00", [], new Date(2026, 9, 3, 10, 0))?.startsWith("2026-10-04T09:00") === true);
+  must("a weekly task finds Monday from Saturday", jobs.nextDueOn("09:00", [1], saturday)?.startsWith("2026-10-05T09:00") === true);
+  must("an empty time never resolves", jobs.nextDueOn("", [], saturday) === null);
+}
+
 // ---- questions: structured ask_user through the shipped normalize/format/runTool path ----
 // ---- memory-verbs: applyMemoryVerb through the real executor and prompt builder ----
 const questions = load("questions.ts");

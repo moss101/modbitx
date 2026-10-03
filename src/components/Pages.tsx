@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { artifactsFromMessages, filterArtifacts, versionCount } from "../artifacts";
-import { CHROME_LABEL, PHONE_LABEL, WEEKDAY_NAMES, taskDaysLabel } from "../local-jobs";
+import { CHROME_LABEL, PHONE_LABEL, WEEKDAY_NAMES, nextDueOn, taskDaysLabel } from "../local-jobs";
 import { paletteEntries, paletteMatches, paletteSnippet, type PaletteEntry } from "../palette";
 import { useStore } from "../store";
+import type { ScheduledTask } from "../types";
 import { ArtifactPane } from "./ThreadView";
 
 export { SettingsPage } from "./SettingsView";
@@ -205,7 +206,20 @@ export function ScheduledPage() {
   const [prompt, setPrompt] = useState("");
   const [when, setWhen] = useState("09:00");
   const [days, setDays] = useState<number[]>([]);
+  const [wakeNote, setWakeNote] = useState<Record<string, string>>({});
   const toggleDay = (day: number) => setDays((current) => current.includes(day) ? current.filter((item) => item !== day) : [...current, day]);
+  const scheduleWake = (task: ScheduledTask) => {
+    const due = nextDueOn(task.when, task.days, new Date());
+    if (!due) {
+      setWakeNote((n) => ({ ...n, [task.id]: "No next occurrence found." }));
+      return;
+    }
+    void window.modbitx?.scheduleWake?.(due).then((result) => {
+      setWakeNote((n) => ({ ...n, [task.id]: `Wake set for ${new Date(due).toLocaleString()}${result.wake ? ` (pmset ${result.wake})` : ""}.` }));
+    }).catch((error: unknown) => {
+      setWakeNote((n) => ({ ...n, [task.id]: error instanceof Error ? error.message : "The wake could not be scheduled." }));
+    });
+  };
   return (
     <main className="main page">
       <header className="topbar"><div><div className="kicker">Scheduled</div><h1>Routines on this Mac</h1></div></header>
@@ -216,9 +230,11 @@ export function ScheduledPage() {
             <header><strong>{task.name}</strong><span>{task.when} · {taskDaysLabel(task.days)}</span></header>
             <p>{task.prompt}</p>
             {task.lastNotice && <p className="muted">{task.lastNotice}{task.lastNoticeAt ? ` · ${new Date(task.lastNoticeAt).toLocaleString()}` : ""}</p>}
+            {wakeNote[task.id] && <p className="muted">{wakeNote[task.id]}</p>}
             <div className="top-actions">
               <button className="ghost" onClick={() => dispatch({ type: "patch-task", id: task.id, patch: { enabled: !task.enabled } })}>{task.enabled ? "Pause" : "Resume"}</button>
               <button className="ghost" onClick={() => runTask(task.prompt, dispatch, task.id)}>Run now</button>
+              <button className="ghost" title="Register a macOS wake for the next occurrence (asks for your admin password)" onClick={() => scheduleWake(task)}>Wake</button>
               <button className="ghost" onClick={() => dispatch({ type: "delete-task", id: task.id })}>Delete</button>
             </div>
           </article>

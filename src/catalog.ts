@@ -65,7 +65,10 @@ export const DEFAULT_SETTINGS: Settings = {
   usageTokens: 0,
   permissionMode: "ask",
   computerMode: "background",
+  computerGuard: true,
   githubToken: "",
+  slackToken: "",
+  linearKey: "",
   sshTarget: "",
   remoteControl: false,
   pairingCode: "",
@@ -113,6 +116,8 @@ export const SEED_CONNECTORS: Connector[] = [
   { id: "calendar", name: "Calendar", category: "Work", blurb: "Read upcoming events when you connect an account.", enabled: false, kind: "directory" },
   { id: "mail", name: "Mail", category: "Work", blurb: "Summarize threads you explicitly attach.", enabled: false, kind: "directory" },
   { id: "messages", name: "Messages", category: "Desktop", blurb: "Read recent iMessage chats and send messages, through this Mac's Messages app.", enabled: false, kind: "directory" },
+  { id: "slack", name: "Slack", category: "Work", blurb: "Post and read Slack with your own bot token (xoxb-… from a Slack app you create). Paste it in Connectors.", enabled: false, kind: "directory" },
+  { id: "linear", name: "Linear", category: "Work", blurb: "Search and update Linear issues with your personal API key from linear.app/settings. Paste it in Connectors.", enabled: false, kind: "directory" },
   { id: "browser", name: "Built-in browser notes", category: "Cowork", blurb: "Keep a scratch log of pages you paste in.", enabled: false, kind: "directory" },
   { id: "custom-mcp", name: "Custom MCP server", category: "Developer", blurb: "stdio server command stored locally. Modbitx records it; you start it yourself.", enabled: false, kind: "custom", command: "" }
 ];

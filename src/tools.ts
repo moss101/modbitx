@@ -138,6 +138,8 @@ export function toolGuide(mode: string): string {
     "search_repo runs the bundled ripgrep over the granted folder: give the pattern in selector. It respects .gitignore and is the fast way to find where something is defined.",
     "latex_compile compiles a .tex file in the granted folder with this Mac's Tectonic or TeX toolchain and reports the PDF. It names the install command when no toolchain exists.",
     "Recording never starts on its own. /record start and /record stop (or record_start and record_stop) frame the screen every 5 seconds with the frontmost app named, keeping the last 20 minutes in temp; computer_history reads that timeline. Starting a recording asks first.",
+    "Computer use defers to the human: click, type, key, hotkey, paste, drag, move, scroll, and focus_app are refused while Secure Input holds the keyboard or while the user typed within the last two seconds. Wait a moment and retry; screenshot and clipboard_read stay available.",
+    "Connector tools (Slack, Linear) need their connector switched on in Settings → Connectors and the credentials pasted there. slack_post and slack_read take a channel ID; posting asks first. linear_search takes the text to match against issue titles.",
     "page_* acts inside the built-in browser. After a page action, a new picture of the page and its controls are attached. A file the page downloads is saved into the granted folder, or Downloads if no folder is granted. page_upload sets a file input from a path inside that folder. Alerts are dismissed. A confirm() is denied unless page_dialog accept was called first, and the dialog text is included in the result. screenshot, focus_app, click, type, and key are computer use. focus_app uses background mode unless the user asked to take over the screen. git, ssh, write_file, and run follow the session permission mode. Plan mode refuses edits. Auto lets Jev 1.13 allow a safe edit and asks otherwise. git branch uses the branch prefix from Settings. git worktree creates a folder under the worktree location in Settings → Code. doc_write content that starts with APPEND and a newline keeps the existing file and adds to it. kind pdf writes one page of text."
   ].join("\n");
 }
@@ -191,6 +193,16 @@ export interface DesktopEnv {
   onScratchpad?: (action: "read" | "update", content: string) => string;
   /** The Messages connector is switched on in Settings → Connectors. */
   messagesOn?: boolean;
+  /** Computer use defers while the human is typing or Secure Input holds the keyboard. */
+  computerGuard?: boolean;
+  /** Reads the typing/Secure-Input guard from the login session. */
+  guardCheck?: () => Promise<{ secureInput: boolean; sinceKey: number; sinceMouse: number; error?: string }>;
+  /** The Slack connector is switched on, with a bot token stored. */
+  slackOn?: boolean;
+  slackToken?: string;
+  /** The Linear connector is switched on, with an API key stored. */
+  linearOn?: boolean;
+  linearKey?: string;
   onPlan?: (text: string) => void;
   onPlanStatus?: (status: "draft" | "review" | "approved") => void;
   onTodos?: (items: { id: string; title: string; status: "pending" | "doing" | "done" }[]) => void;
@@ -198,8 +210,24 @@ export interface DesktopEnv {
   onSimulator?: (view: { name: string; image?: string; note: string; udid?: string }) => void;
 }
 
-async function ensureEdit(env: DesktopEnv, detail: string): Promise<void> {
-  if (env.fileTools === false && /^(write|run|apply|git)/.test(detail)) {
+/**
+ * Computer use defers to the human: a click, keystroke, or paste is refused
+ * while Secure Input holds the keyboard (a password field has it) or while you
+ * typed within the last two seconds. Reads are unaffected.
+ */
+async function guardComputer(env: DesktopEnv, action: string): Promise<void> {
+  if (env.computerGuard === false || !env.guardCheck) return;
+  const state = await env.guardCheck().catch(() => null);
+  if (!state || state.error) return;
+  if (state.secureInput) {
+    throw new Error(`Secure Input is active, so ${action} is deferred. A password field holds the keyboard; finish it and ask again.`);
+  }
+  if (state.sinceKey < 2) {
+    throw new Error(`You typed ${(Math.round(state.sinceKey * 10) / 10) || 0}s ago, so ${action} is deferred until the keyboard is free.`);
+  }
+}
+
+async function ensureEdit(env: DesktopEnv, detail: string): Promise<void> {  if (env.fileTools === false && /^(write|run|apply|git)/.test(detail)) {
     throw new Error("File and command tools are off. Turn them on in Settings → Capabilities.");
   }
   const mode = env.permissionMode === "bypass" && env.allowBypass === false ? "ask" : env.permissionMode;
@@ -492,6 +520,70 @@ async function runToolInner(call: ToolCall, env: DesktopEnv): Promise<ToolResult
         const result = await api.runCommand(folder, call.command || "");
         return { call, ok: result.code === 0, output: `$ ${call.command}\nexit ${result.code}\n${result.stdout}${result.stderr ? `\n${result.stderr}` : ""}` };
       }
+      case "slack_post": {
+        if (env.slackOn !== true) return { call, ok: false, output: "The Slack connector is off. Turn it on in Settings → Connectors and paste a bot token." };
+        if (!env.slackToken) return { call, ok: false, output: "No Slack bot token is stored. Paste one in Settings → Connectors." };
+        const channel = String(call.target || "");
+        const text = String(call.content || call.text || "");
+        if (!channel || !text) return { call, ok: false, output: "slack_post needs a channel ID in target and the message in content." };
+        await ensureEdit(env, `post to Slack channel ${channel}`);
+        const sent = await api.httpJson({
+          url: "https://slack.com/api/chat.postMessage",
+          method: "POST",
+          headers: { Authorization: `Bearer ${env.slackToken}`, "Content-Type": "application/json; charset=utf-8" },
+          body: { channel, text: text.slice(0, 3000) }
+        });
+        let ok = false;
+        let detail = "";
+        try {
+          const parsed = JSON.parse(sent.text) as { ok?: boolean; error?: string; ts?: string };
+          ok = parsed.ok === true;
+          detail = parsed.error ? `Slack said: ${parsed.error}` : `posted at ${parsed.ts}`;
+        } catch { detail = `Slack answered ${sent.status}.`; }
+        return { call, ok, output: ok ? `Posted to ${channel}: ${detail}` : `${detail}` };
+      }
+      case "slack_read": {
+        if (env.slackOn !== true) return { call, ok: false, output: "The Slack connector is off. Turn it on in Settings → Connectors and paste a bot token." };
+        if (!env.slackToken) return { call, ok: false, output: "No Slack bot token is stored. Paste one in Settings → Connectors." };
+        const channel = String(call.target || "");
+        if (!channel) return { call, ok: false, output: "slack_read needs a channel ID in target." };
+        const history = await api.httpJson({
+          url: "https://slack.com/api/conversations.history",
+          method: "POST",
+          headers: { Authorization: `Bearer ${env.slackToken}`, "Content-Type": "application/json; charset=utf-8" },
+          body: { channel, limit: Math.min(20, Math.max(1, Number(call.limit) || 10)) }
+        });
+        try {
+          const parsed = JSON.parse(history.text) as { ok?: boolean; error?: string; messages?: { text?: string; user?: string }[] };
+          if (parsed.ok !== true) return { call, ok: false, output: `Slack said: ${parsed.error || history.status}` };
+          const lines = (parsed.messages || []).map((message) => `${message.user || "?"}: ${(message.text || "").slice(0, 300)}`);
+          return { call, ok: true, output: lines.length ? lines.join("\n").slice(0, 6000) : "No recent messages in that channel." };
+        } catch {
+          return { call, ok: false, output: `Slack answered ${history.status} with an unreadable body.` };
+        }
+      }
+      case "linear_search": {
+        if (env.linearOn !== true) return { call, ok: false, output: "The Linear connector is off. Turn it on in Settings → Connectors and paste an API key." };
+        if (!env.linearKey) return { call, ok: false, output: "No Linear API key is stored. Paste one in Settings → Connectors." };
+        const query = String(call.text || call.selector || "");
+        if (!query) return { call, ok: false, output: "linear_search needs the search text in text." };
+        const gql = `query($term: String!) { issueSearch(first: 10, filter: { title: { containsIgnoreCaseAndDiacritics: $term } }) { nodes { identifier title state { name } assignee { name } } } }`;
+        const found = await api.httpJson({
+          url: "https://api.linear.app/graphql",
+          method: "POST",
+          headers: { Authorization: env.linearKey, "Content-Type": "application/json" },
+          body: { query: gql, variables: { term: query.slice(0, 120) } }
+        });
+        try {
+          const parsed = JSON.parse(found.text) as { data?: { issueSearch?: { nodes?: { identifier: string; title: string; state?: { name?: string }; assignee?: { name?: string } }[] } }; errors?: { message: string }[] };
+          if (parsed.errors?.length) return { call, ok: false, output: `Linear said: ${parsed.errors[0].message.slice(0, 200)}` };
+          const rows = parsed.data?.issueSearch?.nodes || [];
+          if (!rows.length) return { call, ok: true, output: `No Linear issues match "${query}".` };
+          return { call, ok: true, output: rows.map((row) => `${row.identifier} ${row.title} — ${row.state?.name || "?"}${row.assignee ? ` · ${row.assignee.name}` : ""}`).join("\n").slice(0, 6000) };
+        } catch {
+          return { call, ok: false, output: `Linear answered ${found.status} with an unreadable body.` };
+        }
+      }
       case "messages_recent": {
         if (env.messagesOn === false) return { call, ok: false, output: "The Messages connector is off. Turn it on in Settings → Connectors." };
         if (!api?.messagesRead) return { call, ok: false, output: "The Messages bridge is unavailable in this window." };
@@ -671,6 +763,7 @@ async function runToolInner(call: ToolCall, env: DesktopEnv): Promise<ToolResult
       }
       case "focus_app": {
         await ensureComputer(env);
+        await guardComputer(env, "act on the screen");
         const name = (call.app || call.name || "").trim();
         if (name && (env.deniedApps || []).some((app) => app.trim().toLowerCase() === name.toLowerCase())) {
           return { call, ok: false, output: `${name} is on the denied list. Remove it in Settings → Desktop → General.` };
@@ -761,6 +854,7 @@ async function runToolInner(call: ToolCall, env: DesktopEnv): Promise<ToolResult
       }
       case "click": {
         await ensureComputer(env);
+        await guardComputer(env, "act on the screen");
         const label = `${call.text || ""} ${call.key || ""}`.toLowerCase();
         const button = label.includes("right") ? "right" : label.includes("double") ? "double" : "left";
         const point = await api.clickAt(Number(call.x), Number(call.y), button);
@@ -768,11 +862,13 @@ async function runToolInner(call: ToolCall, env: DesktopEnv): Promise<ToolResult
       }
       case "mouse_move": {
         await ensureComputer(env);
+        await guardComputer(env, "move the pointer");
         const point = await api.movePointer(Number(call.x), Number(call.y));
         return { call, ok: true, output: `Moved the pointer to ${point.x}, ${point.y}` };
       }
       case "drag": {
         await ensureComputer(env);
+        await guardComputer(env, "drag");
         const dragged = await api.dragPointer(Number(call.x), Number(call.y), Number(call.x2), Number(call.y2));
         return shotAfter(env, { call, ok: true, output: `Dragged from ${dragged.x}, ${dragged.y} to ${dragged.x2}, ${dragged.y2}.` });
       }
@@ -783,6 +879,7 @@ async function runToolInner(call: ToolCall, env: DesktopEnv): Promise<ToolResult
       }
       case "type": {
         await ensureComputer(env);
+        await guardComputer(env, "act on the screen");
         const text = call.text || "";
         if (text.length > 80 || /[^\n\r\t\x20-\x7E]/.test(text)) {
           const previous = await api.readClipboard();
@@ -797,11 +894,13 @@ async function runToolInner(call: ToolCall, env: DesktopEnv): Promise<ToolResult
       }
       case "key": {
         await ensureComputer(env);
+        await guardComputer(env, "press a key");
         const pressed = await api.pressKey(call.key || "return");
         return shotAfter(env, { call, ok: true, output: `Pressed ${pressed.key}` });
       }
       case "hotkey": {
         await ensureComputer(env);
+        await guardComputer(env, "act on the screen");
         const modifiers = String(call.text || "command").split(/[\s,+]+/).filter(Boolean);
         const pressed = await api.hotkey(call.key || "c", modifiers);
         return shotAfter(env, { call, ok: true, output: `Pressed ${modifiers.join("+")}+${pressed.key}` });
@@ -813,12 +912,14 @@ async function runToolInner(call: ToolCall, env: DesktopEnv): Promise<ToolResult
       }
       case "paste": {
         await ensureComputer(env);
+        await guardComputer(env, "paste");
         const written = await api.writeClipboard(call.text || call.content || "");
         await api.hotkey("v", ["command"]);
         return shotAfter(env, { call, ok: true, output: `Pasted ${written.length} characters into the front app.` });
       }
       case "scroll": {
         await ensureComputer(env);
+        await guardComputer(env, "act on the screen");
         const direction = /up/.test(String(call.text || "")) ? "up" : "down";
         const moved = await api.scrollScreen(direction, Number(call.y) || 3);
         return shotAfter(env, { call, ok: true, output: `Scrolled ${moved.direction} ${moved.count} notches.` });

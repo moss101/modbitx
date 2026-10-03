@@ -22,7 +22,7 @@
     {
       "class": "d",
       "how": "the parity map's deferred notes and partial limits are read as recorded incompleteness",
-      "findingsNow": 46,
+      "findingsNow": 50,
       "fixedDuringThisWork": 0
     }
   ],
@@ -361,6 +361,30 @@
       "pointer": "record-replay",
       "disposition": "deferred",
       "reason": "frames depend on the Screen Recording grant and live capture; the recorder keeps only the latest session in temp and asserts nothing headlessly."
+    },
+    {
+      "class": "d",
+      "pointer": "secure-input-guard",
+      "disposition": "deferred",
+      "reason": "the guard reads login-session state through a runtime-compiled Swift helper; refusing mid-typing is asserted by neither the unit checks nor Playwright here."
+    },
+    {
+      "class": "d",
+      "pointer": "wake-scheduling",
+      "disposition": "deferred",
+      "reason": "the admin password prompt and pmset itself live outside the app; the next-occurrence finder is unit-checked and the prompt is the user's chosen path."
+    },
+    {
+      "class": "d",
+      "pointer": "slack-connector",
+      "disposition": "deferred",
+      "reason": "live Slack calls need the user's bot token and a real workspace; the tool is gated by the connector toggle and reports Slack's own errors."
+    },
+    {
+      "class": "d",
+      "pointer": "linear-connector",
+      "disposition": "deferred",
+      "reason": "live Linear calls need the user's API key and a real workspace; the tool is gated by the connector toggle and reports Linear's own errors."
     }
   ],
   "order": "fixed items are records of what the scan found before the fix; findingsNow is what a fresh scan reports"

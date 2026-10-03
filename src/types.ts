@@ -240,7 +240,13 @@ export interface Settings {
   usageTokens: number;
   permissionMode: PermissionMode;
   computerMode: ComputerMode;
+  /** Computer use defers while you are typing or Secure Input holds the keyboard. */
+  computerGuard: boolean;
   githubToken: string;
+  /** Slack bot token (xoxb-…) for the Slack connector tools. */
+  slackToken: string;
+  /** Linear personal API key for the Linear connector tools. */
+  linearKey: string;
   sshTarget: string;
   remoteControl: boolean;
   pairingCode: string;

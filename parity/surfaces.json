@@ -50,6 +50,7 @@
       "Incognito",
       "Keep awake",
       "LaTeX",
+      "Linear",
       "MCP",
       "Memory",
       "Mermaid",
@@ -79,6 +80,7 @@
       "Schedules",
       "Scratchpad",
       "Search",
+      "Secure input",
       "Session status filter",
       "Sessions",
       "Share",
@@ -86,6 +88,7 @@
       "side by side",
       "Sign in",
       "Skills",
+      "Slack",
       "Slides",
       "Team",
       "Terminal",
@@ -94,6 +97,7 @@
       "Version history",
       "Visualize",
       "Voice",
+      "Wake",
       "Widgets",
       "Worktree"
     ]
@@ -1507,6 +1511,69 @@
       ],
       "evidence": "scripts/no-stubs-check.cjs computer",
       "limit": "A user-started recording frames the screen every 5 seconds with the frontmost app named, capped at 20 minutes in temp, and computer_history reads the timeline; Screen Recording permission and frame capture cannot be asserted headlessly."
+    },
+    {
+      "id": "secure-input-guard",
+      "name": "Secure input guard",
+      "group": "Desktop",
+      "status": "partial",
+      "module": "src/tools.ts",
+      "symbol": "guardComputer",
+      "how": {
+        "kind": "settings",
+        "label": "Computer use defers to your typing"
+      },
+      "covers": [
+        "secure input"
+      ],
+      "evidence": "scripts/local-jobs-check.cjs tools",
+      "limit": "Nine act-on-the-screen computer cases defer while Secure Input holds the keyboard or while the user typed within two seconds, read permissions-free from the login session via the compiled Swift helper; the guard's refusal path cannot be driven headlessly here."
+    },
+    {
+      "id": "wake-scheduling",
+      "name": "Wake scheduling",
+      "group": "Desktop",
+      "status": "partial",
+      "module": "electron/main.cjs",
+      "symbol": "wake:schedule",
+      "how": {
+        "kind": "settings",
+        "label": "Wake"
+      },
+      "evidence": "scripts/local-jobs-check.cjs tasks",
+      "limit": "A task's Wake button computes the next occurrence and registers a macOS wake through pmset with the admin prompt the user chose; the password flow itself cannot be driven headlessly."
+    },
+    {
+      "id": "slack-connector",
+      "name": "Slack connector",
+      "group": "Customize",
+      "status": "partial",
+      "module": "src/tools.ts",
+      "symbol": "slack_post",
+      "how": {
+        "kind": "settings",
+        "label": "Slack"
+      },
+      "covers": [
+        "chat.postMessage",
+        "conversations.history"
+      ],
+      "evidence": "scripts/local-jobs-check.cjs connectors",
+      "limit": "slack_post and slack_read run against Slack's REST API with a user bot token, gated by the connector toggle and an approval before posting; live Slack calls need the user's token and are not asserted."
+    },
+    {
+      "id": "linear-connector",
+      "name": "Linear connector",
+      "group": "Customize",
+      "status": "partial",
+      "module": "src/tools.ts",
+      "symbol": "linear_search",
+      "how": {
+        "kind": "settings",
+        "label": "Linear"
+      },
+      "evidence": "scripts/local-jobs-check.cjs connectors",
+      "limit": "linear_search queries Linear's GraphQL API with a user API key, gated by the connector toggle; live Linear calls need the user's key and are not asserted."
     }
   ]
 }

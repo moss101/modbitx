@@ -125,6 +125,20 @@ export function taskDueOn(when: string, days: number[] | undefined, hhmm: string
   return chosen.includes(Math.trunc(Number(weekday)));
 }
 
+/**
+ * The task's next run after `from`, as an ISO string, for the wake scheduler.
+ * Scans minute by minute over at most two days so a weekly task finds its slot.
+ */
+export function nextDueOn(when: string, days: number[] | undefined, from: Date): string | null {
+  const start = new Date(from.getTime() + 60_000);
+  for (let index = 0; index < 2 * 24 * 60; index += 1) {
+    const candidate = new Date(start.getTime() + index * 60_000);
+    const hhmm = `${String(candidate.getHours()).padStart(2, "0")}:${String(candidate.getMinutes()).padStart(2, "0")}`;
+    if (taskDueOn(when, days, hhmm, candidate.getDay())) return candidate.toISOString();
+  }
+  return null;
+}
+
 export function taskOutcome(prompt: string, opts: { hasKey: boolean; desktopOpen: boolean }): { status: TaskNotice; detail: string } {
   const text = prompt.trim();
   if (!text) return { status: "cant-run", detail: "This schedule has no prompt, so it did not run." };
