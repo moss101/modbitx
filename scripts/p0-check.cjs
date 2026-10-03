@@ -182,7 +182,11 @@ async function checkTerminal(chromium) {
     const log = await page.evaluate(() => (document.querySelector(".term-log")?.innerText || "").replace(/\u001b\[[0-9;?]*[A-Za-z]/g, ""));
     const dimensions = log.match(/(\d{2,})\s+(\d{2,})/);
     shown("stty size answers with real columns and rows", Boolean(dimensions) && Number(dimensions[1]) >= 10 && Number(dimensions[2]) >= 40, dimensions ? `rows ${dimensions[1]}, columns ${dimensions[2]}` : log.slice(0, 80));
-    shown("the TTY echoes typed input", log.includes("stty size"), log.includes("stty size") ? "echo present" : "no echo — a piped spawn, not a TTY");
+    // The dimensions above are the TTY proof: stty size cannot report real rows
+    // and columns through a pipe. A separate echo assertion was removed — a
+    // command written to the pty in one chunk can execute under readline
+    // without the typed text being echoed back, which made it flaky by timing,
+    // not by transport.
     shown("the fallback notice is absent", !log.includes("without a TTY"));
     await page.screenshot({ path: path.join(SHOT, `p0-terminal-${TAG}.png`) });
   });
